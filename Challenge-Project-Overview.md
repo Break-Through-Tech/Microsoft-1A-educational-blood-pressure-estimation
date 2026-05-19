@@ -18,16 +18,25 @@
 
 ---
 
-### 🔍 SME Feedback from the BTT Evaluation Team
->
-> *Please address the following by editing this page:*
->
-> - See advisor feedback section below for detailed technical adjustments.
-> - [Additional feedback item]
-> - [Additional feedback item]
->
-> ---
->
+### 🔍 SME Feedback from the Break Through Tech Evaluation Team
+
+*Challenge Advisor: Please address the following feedback by editing this page. Your AI Studio Coach can help make project adjustments as needed, too. In addition to the grey section above, this section should be removed before sharing the repo with your student team.*
+
+| Check | Status | Notes |
+|-------|--------|-------|
+| Python Compatibility | 🟢 | The tech stack is centered on Python, aligning with the fellows' experience and academic requirements. |
+| Data Readiness | 🟡 | While the data is publicly available, preprocessing may be needed because it originates in different formats (CSV/TSV and MATLAB), which could require additional effort. |
+| Resource Check | 🟢 | No specialized hardware required; free-tier tools (Google Colab) can meet the project's needs at no additional cost. |
+
+**Student Fit Score:** 7/10  
+**Technical Depth Score:** 8/10  
+**Overall Recommendation:** REVISE
+
+**Advisor Feedback Draft:**
+The project leverages relevant and compelling datasets for public health applications, providing a rich educational opportunity. However, we should consider simplifying aspects of the machine learning techniques to better align with the fellows' existing expertise in basic modeling or provide supplementary resources. Ensuring students are adequately prepared for the unique characteristics of working with medical data is crucial. I recommend working closely with mentors to address these challenges.
+
+
+---
 
 # CufflessAI: An Educational Blood Pressure Estimation
 
@@ -144,23 +153,5 @@ I'm excited to work with you!
 ## ❓ Questions?
 
 Please bring any questions to our first meeting, scheduled for the week of August 24th (Break Through Tech's Bridge to Studio - Session B).
-
----
-
-## 📋 BTT Internal Evaluation Notes
-*(This section is for BTT staff only — remove before sharing with students)*
-
-| Check | Status | Notes |
-|-------|--------|-------|
-| Python Compatibility | 🟢 | The tech stack is centered on Python, aligning with the fellows' experience and academic requirements. |
-| Data Readiness | YELLOW | While the data is publicly available, preprocessing may be needed because it originates in different formats (CSV/TSV and MATLAB), which could require additional effort. |
-| Resource Check | 🟢 | No specialized hardware required; free-tier tools (Google Colab) can meet the project's needs at no additional cost. |
-
-**Student Fit Score:** 7/10  
-**Technical Depth Score:** 8/10  
-**Overall Recommendation:** REVISE
-
-**Advisor Feedback Draft:**
-The project leverages relevant and compelling datasets for public health applications, providing a rich educational opportunity. However, we should consider simplifying aspects of the machine learning techniques to better align with the fellows' existing expertise in basic modeling or provide supplementary resources. Ensuring students are adequately prepared for the unique characteristics of working with medical data is crucial. I recommend working closely with mentors to address these challenges.
 
 ---
