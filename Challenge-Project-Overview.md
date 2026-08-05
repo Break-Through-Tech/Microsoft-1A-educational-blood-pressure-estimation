@@ -42,7 +42,7 @@ The project leverages relevant and compelling datasets for public health applica
 
 **Company / Org:** Microsoft  
 **Challenge Advisor:** Wee Hyong Tok, weehyong@gmail.com   
-**AI Studio Coach:** Anshul Rehpade, anshulrehpade@breakthroughtech.org   
+**AI Studio Coach:** Anshul Rehpade, anshul.rehpade@breakthroughtech.org   
 **Program:** Break Through Tech AI Studio - Fall 2026
 
 ---
