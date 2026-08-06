@@ -66,10 +66,15 @@ Production of a complete, responsible, end-to-end ML prototype; evaluation using
 Use these milestones to guide your work. Your team will create a **GitHub Projects board** to track tasks within each milestone.
 
 | Month | Milestone | Key Activities |
-|-------|-----------|----------------|
-| **September** | Data Understanding | Explore dataset, handle missing values, document findings |
-| **October** | Model Development | Train baseline model, experiment with approaches, iterate |
-| **November** | Evaluation & Presentation | Finalize model, prepare presentation, document results |
+| :--- | :--- | :--- |
+| September | Data Cleaning, Preprocessing & Baseline Regression | • Ingest and preprocess PPG (photoplethysmogram) signal waveforms from the UCI Cuffless Blood Pressure Estimation dataset.<br>• Perform signal cleaning, noise filtering (bandpass filtering), and handle corrupted signal segments.<br>• Extract baseline morphological features (pulse transit time, peak intervals, wave amplitudes).<br>• Train baseline regression models (Ridge Regression, Random Forest) to predict Systolic (SBP) and Diastolic (DBP) blood pressure. |
+| October | Advanced Feature Engineering & Deep Learning Modeling | • Engineer advanced PPG derivative features (first and second derivative velocity PPG metrics).<br>• Develop advanced time-series / deep learning regressors (1D-CNN, LSTM, or XGBoost).<br>• Tune hyperparameters and evaluate predictions using MAE, RMSE, and medical standard benchmark thresholds (AAMI standards). |
+| November / December | Model Interpretation, Interactive UI & Capstone Deliverables | • Perform model interpretability analysis (SHAP / feature attributions) to link signal features to physiological BP drivers.<br>• Build an interactive Streamlit application allowing users to visualize PPG waveforms and view predicted SBP/DBP values.<br>• Finalize clean, reproducible GitHub repository, project documentation, and stakeholder presentation deck. |
+
+### Stretch Goals
+* **Signal Artifact & Motion Noise Filtering:** Implement an automated signal quality assessment module to detect and filter out motion artifacts before running inference.
+* **Personalized Baseline Calibration:** Develop a user-specific calibration layer that fine-tunes BP predictions based on a small number of reference blood pressure measurements.
+* **Edge Model Quantization:** Compress and quantize the PPG regression model to enable efficient, low-latency execution on mobile or wearable edge devices.
 
 > **Note for the team:** Please create a GitHub Projects board in this repository to break these milestones into weekly tasks. Go to the **Projects** tab → **New project** → Choose **Board** → Add columns for each month.
 
