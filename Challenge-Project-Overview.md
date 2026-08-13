@@ -78,21 +78,17 @@ A successful outcome by December would include:
 - Basic feature importance or interpretability analysis.   
 
 ### Stretch Goals
+A demo app will be an excellent approach to demonstrate the AI model that you have built for blood pressure prediction.
+Students can expand the scope of the project by building a [Replit app] (https://replit.com/) with waveform plots, model confidence/error bands, feature explanations, and side-by-side model comparisons. You can also consider deploying the Replit app using [Rayfin](https://www.microsoft.com/en-us/microsoft-fabric/features/rayfin) on [Microsoft Fabric](https://www.microsoft.com/en-us/microsoft-fabric/features/rayfin)
 
-_Advanced modeling_
-Students who progress quickly can try a simple 1D convolutional neural network that learns directly from raw PPG waveforms, instead of relying only on hand-crafted features.
+The app can consider use signals from a phone-camera or webcam-based to extract the pulse of a user, and then feed this as inputs to the demo app for blood pressure prediction.
 
 _Blood pressure category classification_
 In addition to predicting SBP and DBP, students can classify readings into broad categories such as low, normal, elevated, or high blood pressure. This would add a classification component.
 
-_Personal calibration simulation_
-Students can simulate a simple calibration step where a known cuff reading is used to adjust model predictions for an individual user.
-Improved app experience
+_Advanced modeling_
+Students who progress quickly can try a simple 1D convolutional neural network that learns directly from raw PPG waveforms, instead of relying only on hand-crafted features.
 
-Students can expand the Streamlit app with waveform plots, model confidence/error bands, feature explanations, and side-by-side model comparisons.
-
-_Camera/video-inspired prototype_
-As an advanced stretch, students can explore how phone-camera or webcam-based pulse extraction works. This should remain optional because it introduces computer vision and signal quality challenges beyond the core ML project.
 
 ### Project Milestones
 
