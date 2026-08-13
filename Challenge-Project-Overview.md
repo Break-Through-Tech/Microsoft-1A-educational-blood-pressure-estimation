@@ -8,9 +8,7 @@
 ---
 
 ## 🏢 About Microsoft
-
-Microsoft is a global technology company that specializes in software, services, devices, and solutions. 
-Microsoft’s mission is to empower every person and every organization on the planet to achieve more.
+Microsoft creates platforms and tools powered by AI to deliver innovative solutions that meet the evolving needs of our customers. The technology company is committed to making AI available broadly and doing so responsibly, with a mission to empower every person and every organization on the planet to achieve more.
 
 ---
 
