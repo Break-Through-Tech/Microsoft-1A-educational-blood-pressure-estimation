@@ -174,19 +174,21 @@ As you explore different evaluation metrics that you can use to evaluate the AI 
 The following resources will help your team understand the problem space and potential technical approaches for this project:
 
 **Background Reading:**
-- [e.g., Link to an article or blog post about the problem domain]
-- [e.g., Link to an industry report or case study]
+- [Nature - A benchmark for machine-learning based non-invasive blood pressure estimation using photoplethysmogram](https://www.nature.com/articles/s41597-023-02020-6)
+- [Estimating Blood Pressure from the Photoplethysmogram Signal and Demographic Features Using Machine Learning Techniques](https://pmc.ncbi.nlm.nih.gov/articles/PMC7309072/)
+- [Exploring supervised machine learning models to estimate blood pressure using non-fiducial features of the photoplethysmogram (PPG) and its derivatives](https://pmc.ncbi.nlm.nih.gov/articles/PMC12511243/)
+- [A continuous cuffless blood pressure measurement from optimal PPG characteristic features using machine learning algorithms](https://pmc.ncbi.nlm.nih.gov/articles/PMC10963242/)
 
 **Technical Tutorials:**
-- [e.g., Link to a free tutorial on the ML technique(s) involved]
-- [e.g., Link to documentation for a key library or tool]
+- [Using SciPy to load MatLab files](https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.loadmat.html)
+- [Neurokit Examples](https://neuropsychology.github.io/NeuroKit/examples/)
 
 **Code Examples:**
-- [e.g., Link to a relevant GitHub repo]
-- [e.g., Link to a sample implementation or starter code]
+- [Kaggle - Blood Pressure Analysis](https://www.kaggle.com/code/stephenmugisha/bloodpressure-analysis)
 
 **Other:**
-- [Links to any additional resources — e.g., papers, videos, podcasts, etc.]
+- [Blood Pressure Estimation from PPG Signals - ICASSP 2020](https://www.youtube.com/watch?v=tZLotOFiyZ4)
+
 
 *Feel free to explore beyond these, and share anything interesting you find with me!*
 
