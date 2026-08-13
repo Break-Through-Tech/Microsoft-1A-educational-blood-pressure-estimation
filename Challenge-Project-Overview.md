@@ -115,18 +115,40 @@ Use these milestones to guide your work. Your team will create a **GitHub Projec
 **Size:** 1gb to 5gb  
 **Location:** https://archive.ics.uci.edu/dataset/340/cuff%2Bless%2Bblood%2Bpressure%2Bestimation
 
-The dataset is in Matlab's v7.3 mat file.
+
+### Key Details
+The UCI Cuff-less Blood Pressure dataset contains the data that we will use to train the AI model.
+Each patient has a PPG signal and an ABP signal. We do not need to use the ECG signal for now.
+
+When you download the files from the location above, the dataset is in Matlab's v7.3 mat file.
 The dataset has a cell array of matrices, each cell is one record part.
 In each matrix each row corresponds to one signal channel: 
 - PPG signal, FS=125Hz;  photoplethysmograph from fingertip
 - ABP signal, FS=125Hz; invasive arterial blood pressure (mmHg)
 - ECG signal, FS=125Hz; electrocardiogram from channel II
 
-### Key Details
-- [Brief description of what's in the data]
-- [Any known limitations or preprocessing needed]
-- [Link to data dictionary or documentation, if available]
+To load the Matlab file, you can consider using scipy.io
 
+Example on how to Load the. mat data file (update path to your local file location)
+
+`mat_data = scipy.io.loadmat('part_1.mat')`
+
+Few things to consider as you preprocess the data
+- When you load the MATLAB files, you might want to consider processing them into 5-second windows. 
+When you process the data into 5-second window, each window should contain 625 PPG samples as input and a pair of blood pressure values as labels.
+
+- For each window, you can extract systolic and diastolic pressure from the ABP signal by finding the peaks (systolic) and valleys (diastolic). If a window contains noisy signals or physiologically impossible values, you can consider discarding the noisy data.
+
+- After pre-processing all the data files, you will have a dataset with 10,000+ paired dataset. Each example is a 625-sample PPG window, and the systolic and diastolic labels.
+
+## 📊 Feature Engineering
+Feature engineering is an important step, as you work towards training an AI model. Feature engineering is the process of transforming raw data into relevant information (or features) that can be used as inputs towards training an AI model.
+
+As you prepare for training, you might have to further pre-process the data to extract the relevant features needed to train the model.
+NeuroKit2 is a good library that you can use to further clean the signal, find heartbeat peaks, and calculate meaningful measurements.
+You can use NeuroKit to extract relevant morphological features from PPG signals that correlate with blood pressure. Some of these features include heart rate variability, pulse morphology, and more.
+
+As you work through feature engineering to identify the relevant features, you should have about 10+ features and the label that corresponds to whether it is high blood or low blood pressure. 
 
 ---
 
@@ -135,10 +157,15 @@ In each matrix each row corresponds to one signal channel:
 **ML Problem Type:** Classification,Regression,Time Series Analysis,Large Language Models (LLMs)/ Generative AI
 
 **Recommended Libraries:**
-- [e.g., pandas, scikit-learn, TensorFlow, Hugging Face]
+- pandas, scikit-learn, scipy, Hugging Face
+- NeuroKit [https://neuropsychology.github.io/NeuroKit/]
 
 **Evaluation Metrics:**
-- [e.g., Accuracy, Precision/Recall, RMSE, BLEU score]
+- Mean Absolute Error (MAE)
+- Root Mean Squared Error (RMSE)
+- R² score
+
+As you explore different evaluation metrics that you can use to evaluate the AI model, think about whether there are other evaluation metrics that you can use.
 
 ---
 
