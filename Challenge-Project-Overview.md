@@ -49,14 +49,21 @@ The project leverages relevant and compelling datasets for public health applica
 
 ## 🏢 About Microsoft
 
-Microsoft is a global technology company that specializes in software, services, devices, and solutions. Our mission is to empower every person and every organization on the planet to achieve more, focusing on innovation and technology impact across various industries.
+Microsoft is a global technology company that specializes in software, services, devices, and solutions. 
+Microsoft’s mission is to empower every person and every organization on the planet to achieve more.
 
 ---
 
 ## 🎯 The Challenge
 
 ### Project Summary
-In this project, you will use public physiological signal data, including photoplethysmography (PPG), electrocardiogram (ECG), and arterial blood pressure waveforms, and supervised machine learning regression techniques to build an educational model that estimates systolic and diastolic blood pressure from pulse-signal features. This will help our organization address the need for responsible, hands-on AI education by giving students experience with real-world sensor data, signal preprocessing, model evaluation, and the limitations of health-related machine learning prototypes.
+This project enables a responsible AI and hands-on AI education by giving students experience with real-world sensor data, signal preprocessing, model evaluation, and the limitations of health-related machine learning prototypes.
+
+A photoplethysmogram (PPG) enables one to track changes in blood volume under your skin. When the heart beats, there are changes to the amount of blood at your fingertip. This change in the amount of blood can affect the amount of light that passes through your finger. It’s similar to the pulse oximeters that you often experience in clinic, where the doctor/nurse clips a device on your finger.
+
+In this project, you will use public physiological signal data, including photoplethysmography (PPG), electrocardiogram (ECG), and arterial blood pressure waveforms. There are different machine learning approaches that can be used to predict blood pressure from this signal. For example, you can use traditional feature engineering with classification/regression techniques, use a neural network to learn directly from the raw signal, or leverage Large Language models (LLMs) for the prediction.
+
+The goal is to build an educational AI model that estimates systolic and diastolic blood pressure from pulse-signal features. 
 
 ### Success Criteria
 
@@ -107,6 +114,13 @@ Use these milestones to guide your work. Your team will create a **GitHub Projec
 **Format:** CSV, TSV, Matlab v7.3 mat file  
 **Size:** 1gb to 5gb  
 **Location:** https://archive.ics.uci.edu/dataset/340/cuff%2Bless%2Bblood%2Bpressure%2Bestimation
+
+The dataset is in Matlab's v7.3 mat file.
+The dataset has a cell array of matrices, each cell is one record part.
+In each matrix each row corresponds to one signal channel: 
+- PPG signal, FS=125Hz;  photoplethysmograph from fingertip
+- ABP signal, FS=125Hz; invasive arterial blood pressure (mmHg)
+- ECG signal, FS=125Hz; electrocardiogram from channel II
 
 ### Key Details
 - [Brief description of what's in the data]
