@@ -44,7 +44,7 @@ You can also consider deploying the Replit app using [Rayfin](https://www.micros
 The app can consider using signals from a phone-camera or webcam-based to extract the pulse of a user, and then feed this as inputs to the demo app for blood pressure prediction.
 
 Examples 
-* [smartphone based heart rate monitorint](https://medium.com/@bgallois/smartphone-based-heart-rate-monitoring-preprocessing-and-analysis-of-ppg-signals-de443473f529)
+* [smartphone based heart rate monitoring](https://medium.com/@bgallois/smartphone-based-heart-rate-monitoring-preprocessing-and-analysis-of-ppg-signals-de443473f529)
 
 
 _Blood pressure category classification_
