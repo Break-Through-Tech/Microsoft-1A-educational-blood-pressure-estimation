@@ -159,8 +159,9 @@ The following resources will help your team understand the problem space and pot
 * I will aim to respond within 48 hours. Please reach out to your AI Studio Coach with urgent questions.
 
 **Recommended free coding / collaboration tools**
-* [Visual Studio Code](https://code.visualstudio.com/
+* [Visual Studio Code](https://code.visualstudio.com/)
 * [Jupyter](https://jupyter.org/try)
+  
   
 
 ---
