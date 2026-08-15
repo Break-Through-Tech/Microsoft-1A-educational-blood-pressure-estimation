@@ -142,6 +142,7 @@ The following resources will help your team understand the problem space and pot
 **Technical Tutorials:**
 - [Using SciPy to load MatLab files](https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.loadmat.html)
 - [Neurokit Examples](https://neuropsychology.github.io/NeuroKit/examples/)
+- [pyPPG](https://pypi.org/project/pyPPG/)
 
 **Code Examples:**
 - [Kaggle - Blood Pressure Analysis](https://www.kaggle.com/code/stephenmugisha/bloodpressure-analysis)
