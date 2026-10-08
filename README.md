@@ -1,6 +1,4 @@
-# AI Studio Challenge Project Title
-
-> 💡 **Note for the team:** This is just a template. Update the above title with your AI Studio Challenge Project name. Remove all guidance notes and example text in this template and populate this README with your own content. You can work on this README throughout AI Studio, and get feedback from your AI Studio Coach and Challenge Advisor before finalizing it.  
+# Pulse2BP
 
 ---
 
@@ -8,13 +6,15 @@
 
 **Example:**
 
-| Name             | GitHub Handle | Contribution                                                             |
-|------------------|---------------|--------------------------------------------------------------------------|
-| Taylor Nguyen    | @taylornguyen | Data exploration, visualization, overall project coordination            |
-| Jordan Ramirez   | @jramirez     | Data collection, exploratory data analysis (EDA), dataset documentation  |
-| Amina Hassan     | @aminahassan  | Data preprocessing, feature engineering, data validation                 |
-| Priya Mehta      | @pmehta       | Model selection, hyperparameter tuning, model training and optimization  |
-| Chris Park       | @chrispark    | Model evaluation, performance analysis, results interpretation           |
+| Name                | GitHub Username | Role / Contribution |
+|---------------------|-----------------|---------------------|
+| Clarisse Iradukunda | @Clarisse-I     | Model selection, hyperparameter tuning, model training and optimization |
+| Hir Bhatt           | @Hir-11         | Model evaluation, performance analysis, results interpretation |
+| Mashrafee Aryan     | @MashrafeeAryan | Pipeline integration, team coordination, dataset structure, train/test design |
+| Sofial Alvazzi      | @sofiaal1       | Data exploration, visualization, overall project coordination |
+| Sushmita Musunuri   | @sushmitam112   | Data collection, exploratory data analysis (EDA), dataset documentation |
+| Vanesa Aguay Guerra | @vaguay | Signal segmentation, SBP/DBP label extraction, preprocessing support |
+| Zaina Qadan         | @zaina778       | Data preprocessing, feature engineering, data validation |
 
 ---
 
@@ -53,16 +53,60 @@
 
 ## 📊 **Data Exploration**
 
-**You might consider describing the following (as applicable):**
+### Dataset
 
-* The dataset(s) used: origin, format, size, type of data
-* Data exploration and preprocessing approaches
-* Insights from your Exploratory Data Analysis (EDA)
-* Challenges and assumptions when working with the dataset(s)
+We are using the **UCI Cuff-Less Blood Pressure Estimation dataset**. The dataset contains synchronized physiological signals that can be used to study cuffless blood pressure estimation.
 
-**Potential visualizations to include:**
+Each recording contains three signals:
 
-* Plots, charts, heatmaps, feature visualizations, sample dataset images
+- **PPG (Photoplethysmography):** measures changes in blood volume
+- **ABP (Arterial Blood Pressure):** provides the blood pressure waveform and is used as the ground truth
+- **ECG (Electrocardiogram):** measures the electrical activity of the heart
+
+The signals are sampled at **125 Hz**, meaning there are 125 data points per second.
+
+The dataset is stored in large MATLAB `.mat` files using the MATLAB v7.3/HDF5 format. Because the files are large, the raw dataset is not stored directly in this GitHub repository.
+
+### Data Exploration
+
+We first explored the structure of the MATLAB files using Python and `h5py`.
+
+Our exploration included:
+
+- Opening the MATLAB/HDF5 files
+- Finding the individual recordings stored inside each file
+- Checking the shape and length of the recordings
+- Confirming the PPG, ABP, and ECG signal columns
+- Plotting small sections of each signal
+- Checking how the three signals change over time
+
+The recordings are long continuous signals, so they cannot be directly used as individual training examples. They will need to be divided into smaller time windows.
+
+### Data Preprocessing
+
+Our preprocessing pipeline is being developed to prepare the signals for machine learning.
+
+The main steps include:
+
+1. Load the PPG, ABP, and ECG signals.
+2. Split the long signals into smaller matching time windows.
+3. Check the PPG signal for missing, flat, or noisy data.
+4. Clean and normalize the PPG signal when needed.
+5. Use the ABP signal to calculate systolic blood pressure (SBP) and diastolic blood pressure (DBP).
+6. Extract useful features from each PPG window.
+7. Use the PPG features as model inputs and the SBP/DBP values as prediction targets.
+
+The PPG and ABP windows must represent the same time period so that the PPG features are matched with the correct blood pressure values.
+
+### Initial EDA Insights
+
+Our initial exploration showed that:
+
+- The dataset is made of long physiological waveforms rather than a normal row-and-column machine learning dataset.
+- PPG, ABP, and ECG signals are recorded together and can be compared over the same time period.
+- ABP contains repeating high and low points that can be used to obtain SBP and DBP.
+- The long recordings need to be divided into smaller windows before feature extraction and model training.
+- Signal quality is important because noisy or incorrect PPG sections could affect the model.
 
 ---
 
