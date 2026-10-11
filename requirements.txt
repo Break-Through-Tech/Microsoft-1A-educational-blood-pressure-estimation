@@ -1,1 +1,8 @@
-
+numpy
+scipy
+h5py
+pandas
+matplotlib
+scikit-learn
+neurokit2
+jupyter
