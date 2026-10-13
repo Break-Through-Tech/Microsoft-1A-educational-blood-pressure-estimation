@@ -1,0 +1,22 @@
+{
+  "synthetic_sine_wave_scores_percent": {
+    "0.6": 23.086017287222774,
+    "1": 85.82968160097116,
+    "2": 99.96827088925728,
+    "20": 1.6174665987737361e-09
+  },
+  "sampling_rate_hz": 125,
+  "samples": 625,
+  "welch_segment_samples": 256,
+  "band_hz": [
+    0.5,
+    8
+  ],
+  "checks_passed": [
+    "in-band signal",
+    "out-of-band signal",
+    "undefined flat signal",
+    "batch/scalar match",
+    "original calculation match"
+  ]
+}

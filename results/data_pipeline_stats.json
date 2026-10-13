@@ -1,0 +1,54 @@
+{
+  "raw_size_bytes": 3410542669,
+  "files_processed": 4,
+  "recordings_processed": 12000,
+  "signal_samples": 333690000,
+  "candidate_windows": 528828,
+  "accepted_windows": 528796,
+  "rejected_windows": 32,
+  "rejection_counts": {
+    "non_finite": 0,
+    "flatline": 0,
+    "invalid_power": 0,
+    "too_few_beats": 22,
+    "bad_bp_order": 10
+  },
+  "per_file": [
+    {
+      "file": "Part_1.mat",
+      "accepted_windows": 131152
+    },
+    {
+      "file": "Part_2.mat",
+      "accepted_windows": 151299
+    },
+    {
+      "file": "Part_3.mat",
+      "accepted_windows": 112446
+    },
+    {
+      "file": "Part_4.mat",
+      "accepted_windows": 133899
+    }
+  ],
+  "sampling_rate_hz": 125,
+  "window_samples": 625,
+  "stride_samples": 625,
+  "bp_range_filter": false,
+  "label_method": "median ABP peaks and troughs",
+  "bandpass_hz": [
+    0.5,
+    8
+  ],
+  "filter_order": 4,
+  "min_peak_distance_samples": 41,
+  "min_beats": 3,
+  "power_cutoff": null,
+  "power_score_band_hz": [
+    0.5,
+    8
+  ],
+  "power_score_segment_samples": 256,
+  "rejection_policy": "first failing check",
+  "runtime_seconds": 850.04
+}

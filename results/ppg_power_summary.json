@@ -1,0 +1,22 @@
+{
+  "candidate_windows": 528828,
+  "measurable_scores": 528828,
+  "undefined_scores": 0,
+  "below_60_percent": 1326,
+  "below_60_share_percent": 0.2507431527831355,
+  "percentiles": {
+    "0": 24.28481465997944,
+    "0.05": 83.69593094857971,
+    "0.5": 97.29895235178182,
+    "0.95": 99.599550550119,
+    "1": 99.98464581425202
+  },
+  "cutoff_applied": null,
+  "band_hz": [
+    0.5,
+    8
+  ],
+  "welch_segment_samples": 256,
+  "window_samples": 625,
+  "sampling_rate_hz": 125
+}
