@@ -1,1 +1,4 @@
-
+.DS_Store
+data/*.mat
+.ipynb_checkpoints/
+data/*.csv
