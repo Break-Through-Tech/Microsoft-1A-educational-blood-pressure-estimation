@@ -70,3 +70,66 @@
 - `data/processed_dataset.npz`: one file holding the cleaned PPG windows, SBP/DBP labels, source IDs, and power scores.
 - **Source IDs:** the original file, recording number, and starting row for each window.
 - [data_pipeline_stats.json](data_pipeline_stats.json): kept/rejected counts and the settings used.
+
+## [ppg_feature_extraction.ipynb](../notebooks/ppg_feature_extraction.ipynb)
+
+**Purpose:** Turn cleaned PPG windows into pulse measurements for a model.
+
+### Feature extraction steps
+
+- Load the cleaned windows from `data/processed_dataset.npz`.
+- Find pulse tops (**peaks**) and the low points between them (**feet**).
+- Measure heart rate, pulse height, pulse width, rise/fall time, and other signal features.
+- Skip windows where fewer than two complete pulses can be measured or a measurement is undefined.
+- Keep the saved SBP/DBP labels and source IDs matched to each window.
+- Save one row per usable five-second window in `data/ppg_features.csv`.
+
+### Example measurements
+
+- Source: `Part_1.mat`, recording **0**, starting row **0**.
+- Estimated heart rate: **121.8 beats per minute**.
+- Average rise time: **0.139 seconds**.
+- Average fall time: **0.352 seconds**.
+- These are calculated from the detected pulses, not separate confirmed measurements.
+
+### Findings
+
+- Started with **527,472 cleaned windows**.
+- Kept **527,467 windows**, with **14 PPG features** for each.
+- Skipped **5** with too few complete pulses.
+- Skipped **0** for undefined measurements.
+- The strongest single relationship with SBP was the **rise-time/fall-time ratio** (**-0.164**).
+- The strongest single relationship with DBP was the **lowest PPG reading** (**-0.092**).
+- Both relationships were weak. We have not tested prediction accuracy.
+- Saved labels and source IDs were checked against the cleaned dataset.
+
+### Detected-pulse graph
+
+![Cleaned PPG with pulse peaks and feet](graphs/feature_beats.png)
+
+- The line shows five seconds of cleaned PPG.
+- Red markers show pulse tops. Green markers show low points.
+- The shaded area marks one complete pulse used for measurements.
+
+### Feature graphs
+
+![Distributions of four pulse measurements](graphs/feature_distributions.png)
+
+- Each graph shows how a measurement varies across usable windows.
+- Taller bars mean more windows have that value.
+
+### Feature relationships with blood pressure
+
+![Relationships between PPG features and SBP/DBP](graphs/feature_correlations.png)
+
+- Positive numbers mean the feature and blood pressure tend to rise together.
+- Negative numbers mean they tend to move in opposite directions.
+- Numbers near zero mean little straight-line relationship. This does not tell us how well features work together in a model.
+
+### What we saved
+
+- `data/ppg_features.csv`: the feature table, generated locally and ignored by Git because it is large.
+- **Inputs:** 14 pulse and signal measurements.
+- **Answers:** the SBP and DBP labels from preprocessing.
+- **Source IDs:** file, recording number, and starting row. Keep each recording together when splitting data later; these are not patient IDs.
+- **Extra information:** complete-pulse count and the saved PPG power score.
