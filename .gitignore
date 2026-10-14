@@ -4,3 +4,4 @@ data/*.mat
 data/*.csv
 /AGENTS.md
 data/*.npz
+__pycache__/
