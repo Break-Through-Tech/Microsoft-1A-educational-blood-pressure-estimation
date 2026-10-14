@@ -4,31 +4,32 @@
   "recordings_processed": 12000,
   "signal_samples": 333690000,
   "candidate_windows": 528828,
-  "accepted_windows": 528796,
-  "rejected_windows": 32,
+  "accepted_windows": 527472,
+  "rejected_windows": 1356,
   "rejection_counts": {
     "non_finite": 0,
     "flatline": 0,
     "invalid_power": 0,
     "too_few_beats": 22,
-    "bad_bp_order": 10
+    "bad_bp_order": 10,
+    "low_power": 1324
   },
   "per_file": [
     {
       "file": "Part_1.mat",
-      "accepted_windows": 131152
+      "accepted_windows": 130924
     },
     {
       "file": "Part_2.mat",
-      "accepted_windows": 151299
+      "accepted_windows": 150976
     },
     {
       "file": "Part_3.mat",
-      "accepted_windows": 112446
+      "accepted_windows": 112068
     },
     {
       "file": "Part_4.mat",
-      "accepted_windows": 133899
+      "accepted_windows": 133504
     }
   ],
   "sampling_rate_hz": 125,
@@ -43,12 +44,15 @@
   "filter_order": 4,
   "min_peak_distance_samples": 41,
   "min_beats": 3,
-  "power_cutoff": null,
+  "power_cutoff": 0.6,
   "power_score_band_hz": [
     0.5,
     8
   ],
   "power_score_segment_samples": 256,
   "rejection_policy": "first failing check",
-  "runtime_seconds": 850.04
+  "power_check_order": "after basic ABP label checks",
+  "source_preprocessing_runtime_seconds": 850.04,
+  "power_filter_runtime_seconds": 28.52,
+  "update_method": "filter the saved cleaned dataset using recorded raw PPG power scores"
 }
