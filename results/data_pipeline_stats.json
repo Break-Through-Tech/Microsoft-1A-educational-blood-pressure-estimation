@@ -45,14 +45,12 @@
   "min_peak_distance_samples": 41,
   "min_beats": 3,
   "power_cutoff": 0.6,
+  "power_check_order": "after basic ABP label checks",
   "power_score_band_hz": [
     0.5,
     8
   ],
   "power_score_segment_samples": 256,
   "rejection_policy": "first failing check",
-  "power_check_order": "after basic ABP label checks",
-  "source_preprocessing_runtime_seconds": 850.04,
-  "power_filter_runtime_seconds": 28.52,
-  "update_method": "filter the saved cleaned dataset using recorded raw PPG power scores"
+  "runtime_seconds": 135.51
 }
