@@ -136,39 +136,44 @@
 
 ## [modeling.ipynb](../notebooks/modeling.ipynb)
 
-**Purpose:** Test whether the 14 PPG features can predict SBP and DBP, and compare two models against a do-nothing baseline.
+**Purpose:** Test whether the 14 PPG features can predict SBP and DBP, tune each model's settings properly, and compare the result against a do-nothing baseline.
 
 ### Modeling steps
 
 - Load `data/ppg_features.csv`.
-- Split into train and test sets **by whole recording**, not by row, so a recording's five-second windows never end up on both sides. This stops the model from "cheating" on windows that look almost identical to ones it already trained on.
+- Split into train and test sets **by whole recording**, not by row, so a recording's five-second windows never end up on both sides. This stops the model from "cheating" on windows that look almost identical to ones it already trained on. **The test set is set aside here and is not touched again until the very last step.**
 - Build a **naive baseline**: always guess the training set's average SBP and DBP, ignoring the PPG features entirely. This is the number any real model has to beat.
-- Train two real models for SBP and two for DBP (four models total):
-  - **Ridge regression:** a linear model. The 14 features are rescaled to a similar range first, since they start on very different scales (for example, heart rate in beats per minute vs. a rise/fall ratio near 1).
-  - **Gradient boosting:** a model built from many small decision trees, which can pick up on combinations of features a linear model cannot.
-- Score every model the same way: mean absolute error (MAE) and root mean squared error (RMSE) on the held-out test recordings only.
+- **Tune each model's hyperparameters** using the training set only, never the test set:
+  - Split the training recordings into 5 groups (folds), again keeping each recording's windows together within one fold.
+  - For every candidate setting, train on 4 folds and check error on the 5th, rotating which fold is held out, then average the error across all 5 folds. This is called grouped K-fold cross-validation.
+  - **Ridge regression:** tried 7 values of `alpha` (how strongly it shrinks the coefficients), from 0.001 to 1000.
+  - **Gradient boosting:** tried 45 combinations of 3 settings (`learning_rate`, `max_leaf_nodes`, `min_samples_leaf`) that control how fast and how complex the model grows.
+  - The combination with the lowest average cross-validation error is kept for each target.
+- Refit the winning settings on the **full** training set, then evaluate once on the held-out test recordings — the only time the test set is used.
 - Explain each model's predictions: standardized coefficients for ridge, and permutation importance for gradient boosting (shuffling one feature at a time and checking how much worse predictions get).
 
 ### Findings
 
 - Train/test split: **9,589 recordings / 420,509 windows** for training, **2,400 recordings / 106,958 windows** for testing.
 - Naive baseline (always predicting the training average): **SBP 128.9 mmHg, DBP 68.1 mmHg**, giving MAE of **18.5** (SBP) and **9.2** (DBP).
-- **Gradient boosting beat the naive baseline on both targets:**
-  - SBP: MAE dropped from 18.5 to **15.5** (RMSE 22.8 → 19.9).
-  - DBP: MAE dropped from 9.2 to **7.9** (RMSE 12.0 → 10.9).
-- **Ridge regression also beat the baseline, but by less:** SBP MAE 18.5 → 17.7; DBP MAE 9.2 → 8.8.
+- **Ridge regression's `alpha` barely mattered.** Cross-validation error was nearly flat across all 7 values (SBP error stayed at 17.57 from `alpha=0.001` through `alpha=100`, only rising slightly at `alpha=1000`). With over 400,000 training rows, there isn't much for this kind of regularization to control. `alpha=0.001` was picked for both targets, but it is effectively a tie with the next few values.
+- **Gradient boosting's search picked the same, most complex setting for both targets:** `learning_rate=0.05`, `max_leaf_nodes=1000`, `min_samples_leaf=20`. This was also the slowest setting to train in the search. Because it is the most complex option *available* in the grid we tried, this is an "edge of the grid" result — a wider search might find something even better, so this should not be read as the best possible gradient boosting model, just the best one found in this search.
+- **Tuned results on the test set:**
+  - SBP: naive baseline MAE 18.5 &rarr; ridge (tuned) **17.7** &rarr; gradient boosting (tuned) **14.7** (RMSE 22.8 &rarr; 22.1 &rarr; 19.3).
+  - DBP: naive baseline MAE 9.2 &rarr; ridge (tuned) **8.8** &rarr; gradient boosting (tuned) **7.6** (RMSE 12.0 &rarr; 11.7 &rarr; 10.6).
+- Tuning gradient boosting's settings improved it further over an earlier untuned run (default settings: MAE 15.5 for SBP, 7.9 for DBP) — about 5% lower error on both targets after tuning.
 - Gradient boosting outperforming ridge on both targets suggests the useful signal in these features is not purely a straight-line (linear) relationship.
-- `pulse_height`, `max_upslope`, and `ppg_std` were the most important features for **both** models and **both** targets — a consistent story across two very different model types.
+- `pulse_height`, `max_upslope`, and `ppg_std` were the most important features for **both** models and **both** targets — a consistent story across two very different model types, and unchanged by tuning.
 - This ranking differs from the single-feature correlations found in `ppg_feature_extraction.ipynb` (which pointed to `rise_fall_ratio` for SBP and `ppg_min` for DBP). That is expected, not a contradiction: a correlation looks at one feature alone, while a trained model's importance accounts for every feature together.
 - None of these errors are close to clinical accuracy (medical guidelines look for MAE around 5 mmHg or less). These results fit the project's educational goal — showing a complete, honest pipeline — rather than a clinically usable model.
 
 ### Model comparison graph
 
-![MAE for the naive baseline, ridge, and gradient boosting, for SBP and DBP](graphs/model_comparison.png)
+![MAE for the naive baseline, tuned ridge, and tuned gradient boosting, for SBP and DBP](graphs/model_comparison.png)
 
 - Each bar is one model's average error in mmHg on the test recordings.
 - Shorter bars are better.
-- Gray is the naive baseline, blue is ridge, red is gradient boosting.
+- Gray is the naive baseline, blue is tuned ridge, red is tuned gradient boosting.
 
 ### Feature importance graphs
 
@@ -181,5 +186,5 @@
 ### What we saved
 
 - `results/graphs/model_comparison.png` and `results/graphs/feature_importance.png`.
-- No model files are saved by this notebook; re-running it refits all four models from `data/ppg_features.csv`.
-- The modeling code itself lives in `src/` (`data_split.py`, `baseline.py`, `models.py`, `importance.py`) so the same functions can be reused or extended without copying code between notebooks.
+- No model files are saved by this notebook; re-running it repeats the full hyperparameter search and refits all four final models from `data/ppg_features.csv`.
+- The modeling code itself lives in `src/` (`data_split.py`, `baseline.py`, `models.py`, `importance.py`, `cross_validation.py`) so the same functions can be reused or extended without copying code between notebooks.
