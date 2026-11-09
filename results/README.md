@@ -188,3 +188,83 @@
 - `results/graphs/model_comparison.png` and `results/graphs/feature_importance.png`.
 - No model files are saved by this notebook; re-running it repeats the full hyperparameter search and refits all four final models from `data/ppg_features.csv`.
 - The modeling code itself lives in `src/` (`data_split.py`, `baseline.py`, `models.py`, `importance.py`, `cross_validation.py`) so the same functions can be reused or extended without copying code between notebooks.
+
+## [modeling_20s.ipynb](../notebooks/modeling_20s.ipynb)
+
+**Purpose:** check whether longer feature windows improve on the 5-second-window results above. Same code, same split logic, same cross-validation grids as `modeling.ipynb` — the only thing that changes is the input file.
+
+**About the data:** `data/bp_training_dataset_20s.csv` was provided already cleaned and feature-extracted, with the exact same 14-feature/label/source-ID schema as `ppg_features.csv`, but each row summarizes a **20-second** window instead of a 5-second one (so each row's features are averaged over more heartbeats, at the cost of far fewer total rows). It was **not** produced by this repo's `preprocess.ipynb`/`ppg_feature_extraction.ipynb`, which are hardcoded to 5-second (625-sample) windows — it's an external run of an equivalent pipeline. Saved locally and gitignored, like the other `data/*.csv` files.
+
+### Findings
+
+- **128,460 rows / 10,161 recordings** total — about a quarter of the 5-second dataset's row count. Split: 103,033 rows / 8,128 recordings train, 25,427 rows / 2,033 recordings test.
+- Naive baseline: MAE **17.84** (SBP), **8.73** (DBP) — lower than the 5-second baseline (18.5 / 9.2) simply because this is a different dataset with a different train-set mean.
+- Ridge's `alpha` again barely mattered (flat CV MAE from 0.001 to 100), and gradient boosting's search again picked the same combination for both targets, again sitting at an edge of the grid — see the widened-grid check below.
+- **Tuned test results, 20-second windows vs. the original 5-second windows:**
+  - SBP: naive 17.84 &rarr; ridge (tuned) **16.75** &rarr; gbm (tuned) **13.30** (RMSE 22.02 &rarr; 21.03 &rarr; 18.06).
+  - DBP: naive 8.73 &rarr; ridge (tuned) **8.29** &rarr; gbm (tuned) **7.03** (RMSE 11.48 &rarr; 11.05 &rarr; 10.10).
+  - Compared to the 5-second gradient boosting results (SBP 14.7, DBP 7.6): **about 9% lower MAE for SBP and 7% lower for DBP** on 20-second windows. Ridge improved by a similar 5-6%. Longer windows produced a real improvement here, not just noise.
+- Feature importance is unchanged from the 5-second result: `pulse_height`, `max_upslope`, and `ppg_std` are still the top three for both models and both targets.
+
+### Widened hyperparameter grid (checked on the 20-second data only)
+
+Gradient boosting's search had now picked the same combination on *two different datasets* (5-second and 20-second windows), and every one of its three hyperparameters sat at an edge of the grid it was searched over: `learning_rate=0.05` (low edge), `max_leaf_nodes=1000` (high edge), `min_samples_leaf=20` (low edge). That pattern is worth checking rather than trusting blindly, so we widened the grid once, on the faster-to-iterate 20-second data:
+
+- `GBM_PARAM_GRID` widened to `learning_rate: [0.02, 0.05, 0.1]`, `max_leaf_nodes: [100, 316, 1000, 3000]`, `min_samples_leaf: [5, 10, 20, 50]` (48 combinations).
+- `fit_gbm`'s `max_iter` raised from 300 to 1000 (with `early_stopping=True` still deciding when training actually stops), after a timing probe showed every earlier fit had used the full `max_iter=300` without early stopping ever triggering — i.e. training may have been cut off before it converged, independent of the grid search entirely.
+
+**Result: the gain was negligible.** SBP gbm MAE went from 13.376 to **13.300** (&minus;0.6%), DBP from 7.073 to **7.033** (&minus;0.6%) — smaller than the ~0.15-0.17 fold-to-fold noise in the cross-validation scores. But the search did answer the original question:
+
+- **`max_leaf_nodes` settled back on 1000**, even with 3000 now available — confirming 1000 is a genuine local optimum, not an artifact of the grid stopping at 1000.
+- `learning_rate` (0.02) and `min_samples_leaf` (5) still landed on the new low edges, but the top several combinations in the cross-validation table were statistically indistinguishable from each other, so pushing those two lower still is expected to cost compute for no real gain.
+- Conclusion: the search had already converged with the original grid. The 20-second numbers above already reflect this widened grid (it's marginally better and removes the leaf-count caveat), and `src/cross_validation.py`/`src/models.py` now ship with it as the default.
+
+### Model comparison and feature importance graphs
+
+![MAE for the naive baseline, tuned ridge, and tuned gradient boosting on 20-second windows, for SBP and DBP](graphs/model_comparison_20s.png)
+
+![Ridge coefficients and gradient boosting permutation importance for SBP and DBP, 20-second windows](graphs/feature_importance_20s.png)
+
+Same reading as the graphs in the `modeling.ipynb` section above. These reflect the widened-grid run (the committed default).
+
+### What we saved
+
+- `results/graphs/model_comparison_20s.png` and `results/graphs/feature_importance_20s.png`.
+- No changes to `data/ppg_features.csv` or the original `modeling.ipynb` — this is a separate notebook reusing the same `src/` code against a different input file, so the two window lengths can be compared directly.
+
+## [modeling_30s.ipynb](../notebooks/modeling_30s.ipynb)
+
+**Purpose:** extend the window-length comparison to 30-second windows. Same code and split logic as the notebooks above. **Uses the original (narrower) hyperparameter grid**, not the widened one above — this keeps it directly comparable to the first-pass 5-second and 20-second results, since the widened-grid check already showed widening doesn't meaningfully change the outcome (see above).
+
+**About the data:** `data/bp_training_dataset_30s.csv`, same external pipeline and schema as the 20-second file, just longer windows. Gitignored, local only.
+
+### Findings
+
+- **83,419 rows / 9,623 recordings** — fewer recordings and about 35% fewer rows than the 20-second dataset, since longer windows mean fewer non-overlapping windows fit into each recording. Split: 66,381 rows / 7,697 recordings train, 17,038 rows / 1,926 recordings test.
+- Naive baseline: MAE **17.97** (SBP), **8.58** (DBP).
+- Ridge: best `alpha=0.001` again (barely matters) for both targets.
+- Gradient boosting: SBP picked `learning_rate=0.05, max_leaf_nodes=1000, min_samples_leaf=20` (edge again); **DBP picked `max_leaf_nodes=316` this time**, not 1000 — the first case so far where a GBM search didn't land on the complexity edge, suggesting the "more complexity always wins" pattern isn't universal, just common on these features.
+- **Tuned test results:**
+  - SBP: naive 17.97 &rarr; ridge (tuned) **16.98** &rarr; gbm (tuned) **13.83** (RMSE 21.99 &rarr; 21.11 &rarr; 18.55).
+  - DBP: naive 8.58 &rarr; ridge (tuned) **8.20** &rarr; gbm (tuned) **7.10** (RMSE 11.23 &rarr; 10.82 &rarr; 9.99).
+
+### Three-way window-length comparison (gradient boosting, tuned, MAE on held-out test recordings)
+
+| Window | Rows | SBP MAE | DBP MAE |
+|---|---|---|---|
+| 5 seconds | 527,467 | 14.70 | 7.60 |
+| 20 seconds | 128,460 | **13.30** | **7.03** |
+| 30 seconds | 83,419 | 13.83 | 7.10 |
+
+**20 seconds is the best of the three, not 30.** Longer windows help up to a point (more heartbeats averaged into each row's features, less noise per row) but cost training rows (fewer independent windows per recording) — past 20 seconds here, the loss of training data outweighs the extra averaging. This is a genuine sweet-spot finding, not just "longer is better."
+
+### Model comparison and feature importance graphs
+
+![MAE for the naive baseline, tuned ridge, and tuned gradient boosting on 30-second windows, for SBP and DBP](graphs/model_comparison_30s.png)
+
+![Ridge coefficients and gradient boosting permutation importance for SBP and DBP, 30-second windows](graphs/feature_importance_30s.png)
+
+### What we saved
+
+- `results/graphs/model_comparison_30s.png` and `results/graphs/feature_importance_30s.png`.
+- Same `src/` code, different input file — `src/cross_validation.py`/`src/models.py` were temporarily reverted to the original (narrower) grid for this run only, then restored to the widened-grid default used by `modeling_20s.ipynb`.

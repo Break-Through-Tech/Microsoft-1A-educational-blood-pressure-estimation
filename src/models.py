@@ -60,7 +60,7 @@ def fit_gbm(
     Defaults use early stopping on an internal validation slice so you
     don't need to hand-tune n_estimators; override via hgb_kwargs if needed.
     """
-    params = dict(max_iter=300, learning_rate=0.1, early_stopping=True, random_state=random_state)
+    params = dict(max_iter=1000, learning_rate=0.1, early_stopping=True, random_state=random_state)
     params.update(hgb_kwargs)
     model = HistGradientBoostingRegressor(**params)
     model.fit(train_df[list(feature_cols)], train_df[target_col])

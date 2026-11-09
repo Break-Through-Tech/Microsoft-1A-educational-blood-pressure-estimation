@@ -41,13 +41,18 @@ except ImportError:  # running as a plain script from within src/
 # ridge_alpha_search below (GridSearchCV + Pipeline), not grid_search_cv.
 RIDGE_ALPHA_GRID = {"ridge__alpha": [0.001, 0.01, 0.1, 1, 10, 100, 1000]}
 
-# For gbm_param_search below. max_leaf_nodes: np.unique(np.logspace(1, 3,
-# num=5).astype(int)) == [10, 31, 100, 316, 1000] — 5 log-spaced values
-# from 10 to 1000 leaves, deduplicated after truncation to int.
+# For gbm_param_search below. A first pass over {learning_rate: [0.05, 0.1,
+# 0.2], max_leaf_nodes: [10, 31, 100, 316, 1000], min_samples_leaf: [20, 100,
+# 300]} picked the same combination for both SBP and DBP, on two different
+# datasets: learning_rate=0.05 (low edge), max_leaf_nodes=1000 (high edge),
+# min_samples_leaf=20 (low edge) — every winner sat at an edge of its range,
+# so this grid pushes further in the direction each one was already
+# heading, and drops values that never won in that first pass (0.2, 10, 31,
+# 100, 300) to keep the combo count from exploding.
 GBM_PARAM_GRID = {
-    "learning_rate": [0.05, 0.1, 0.2],
-    "max_leaf_nodes": np.unique(np.logspace(1, 3, num=5).astype(int)).tolist(),
-    "min_samples_leaf": [20, 100, 300],
+    "learning_rate": [0.02, 0.05, 0.1],
+    "max_leaf_nodes": [100, 316, 1000, 3000],
+    "min_samples_leaf": [5, 10, 20, 50],
 }
 
 
@@ -219,14 +224,18 @@ def gbm_param_search(
     train_df must be the TRAIN split only; this function never sees test_df.
     max_iter and early_stopping are held fixed (same defaults as fit_gbm in
     models.py) while learning_rate/max_leaf_nodes/min_samples_leaf vary —
-    those three are the only hyperparameters being searched here.
+    those three are the only hyperparameters being searched here. max_iter
+    is set high (1000) with early_stopping=True doing the actual stopping,
+    since a timing probe showed every fit in the first search hit the old
+    max_iter=300 ceiling without early stopping ever triggering — i.e. we
+    were cutting training off before it converged, independent of the grid.
 
     Returns:
         (results, search): tidy results sorted by mean CV MAE (best first),
         and the fitted GridSearchCV object (search.best_estimator_ is
         refit on all of train_df with the winning hyperparameters).
     """
-    estimator = HistGradientBoostingRegressor(max_iter=300, early_stopping=True, random_state=random_state)
+    estimator = HistGradientBoostingRegressor(max_iter=1000, early_stopping=True, random_state=random_state)
     groups = train_df[list(group_cols)].astype(str).agg("|".join, axis=1)
     cv = GroupKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
 

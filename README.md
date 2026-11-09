@@ -112,26 +112,33 @@ Our initial exploration showed that:
 
 ## 🧠 **Model Development**
 
-**You might consider describing the following (as applicable):**
-
-* Model(s) used (e.g., CNN with transfer learning, regression models)
-* Feature selection and Hyperparameter tuning strategies
-* Training setup (e.g., % of data for training/validation, evaluation metric, baseline performance)
-
+- **Models:** Ridge regression (linear baseline) and gradient boosting (`HistGradientBoostingRegressor`), each trained separately for SBP and DBP — four models total, since gradient boosting in scikit-learn doesn't support multiple outputs at once.
+- **Features:** 14 PPG-derived measurements per window (heart rate, pulse height, rise/fall time, pulse width, upslope, and PPG signal statistics) built in `ppg_feature_extraction.ipynb`. Ridge gets its features standardized first; gradient boosting uses them raw, since tree-based models don't need scaling.
+- **Train/test split:** grouped 80/20 split **by whole recording** (`src/data_split.py`), so a recording's windows never land on both sides — this prevents the model from "cheating" on near-duplicate windows from a recording it already trained on.
+- **Baseline:** a naive baseline (always predict the training set's mean SBP/DBP, ignoring every feature) sets the floor every real model has to beat.
+- **Hyperparameter tuning:** grouped 5-fold cross-validation on the training set only (`src/cross_validation.py`), using `GroupKFold` on recording ID so a recording's windows stay in a single fold, the same way they do in the train/test split. The test set is never touched during this step.
+  - Ridge: searched `alpha` over `[0.001, 0.01, 0.1, 1, 10, 100, 1000]` via a scikit-learn `Pipeline(StandardScaler, Ridge)`, so the scaler is refit on each fold's training data only.
+  - Gradient boosting: searched `learning_rate`, `max_leaf_nodes`, and `min_samples_leaf` together (dozens of combinations), then widened that search once after noticing every winning combination sat at an edge of the grid — the wider search converged to essentially the same result, confirming the first search already found a real optimum rather than being cut short by the grid's boundaries.
+- **Window-length experiment:** beyond the original 5-second windows, we tested two externally-cleaned datasets built from 20-second and 30-second windows (same 14-feature schema, more heartbeats averaged per window, but fewer total rows) to see whether longer windows improve prediction.
 
 ---
 
 ## 📈 **Results & Key Findings**
 
-**You might consider describing the following (as applicable):**
+- The naive baseline alone accounts for most of the achievable error reduction (~18.5 mmHg MAE for SBP, ~9.2 mmHg for DBP on 5-second windows) — real signal from the PPG features has to beat that.
+- **Gradient boosting consistently and meaningfully outperforms ridge** on both SBP and DBP, across all three window lengths tested — ridge only shaves a few percent off the naive baseline, while gradient boosting cuts MAE by 15-25%. This suggests the relationship between these PPG features and blood pressure isn't purely linear.
+- **Window length matters, but longer isn't simply better.** Of the three lengths tested, **20-second windows** gave the lowest error — beating both the shorter 5-second windows and the longer 30-second windows:
 
-* Performance metrics (e.g., Accuracy, F1 score, RMSE)
-* How your model performed
-* Insights from evaluating model fairness
+  | Window | Rows | SBP MAE (tuned gradient boosting) | DBP MAE (tuned gradient boosting) |
+  |---|---|---|---|
+  | 5 seconds | 527,467 | 14.70 | 7.60 |
+  | **20 seconds** | 128,460 | **13.30** | **7.03** |
+  | 30 seconds | 83,419 | 13.83 | 7.10 |
 
-**Potential visualizations to include:**
-
-* Confusion matrix, precision-recall curve, feature importance plot, prediction distribution, outputs from fairness or explainability tools
+  Longer windows average pulse measurements over more heartbeats (less noise per row), but also mean fewer independent windows per recording (less training data) — 20 seconds is the point where that trade-off is best for this dataset.
+- **Feature importance is consistent across all three window lengths and both model types:** `pulse_height`, `max_upslope`, and `ppg_std` are the most influential features for predicting both SBP and DBP, in both ridge's standardized coefficients and gradient boosting's permutation importance.
+- None of these results approach clinical accuracy (medical guidelines look for roughly 5 mmHg MAE or better) — that's expected for this educational pipeline rather than a clinically deployable model, and is documented honestly rather than overstated.
+- Full per-notebook writeups, numbers, and graphs (model comparison bar charts, feature importance plots) are in [`results/README.md`](results/README.md).
 
 ---
 
