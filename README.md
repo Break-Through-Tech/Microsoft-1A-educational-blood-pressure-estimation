@@ -4,8 +4,6 @@
 
 ### 👥 **Team Members**
 
-**Example:**
-
 | Name                | GitHub Username | Role / Contribution |
 |---------------------|-----------------|---------------------|
 | Clarisse Iradukunda | @Clarisse-I     | Model selection, hyperparameter tuning, model training and optimization |
@@ -20,34 +18,24 @@
 
 ## 🎯 **Project Highlights**
 
-**Example:**
-
-- Developed a machine learning model using `[model type/technique]` to address `[challenge project task]`.
-- Achieved `[key metric or result]`, demonstrating `[value or impact]` for `[host company]`.
-- Generated actionable insights to inform business decisions at `[host company or stakeholders]`.
-- Implemented `[specific methodology]` to address industry constraints or expectations.
+- Estimate systolic (SBP) and diastolic (DBP) blood pressure from a fingertip pulse signal.
+- Compare XGBoost and Extra Trees with a simple training-median baseline.
+- XGBoost scored **11.60 mmHg SBP MAE** and **6.04 mmHg DBP MAE** on the 30-second test windows. [Final notebook](notebooks/final.ipynb)
 
 ---
 
 ## 👩🏽‍💻 **Setup and Installation**
 
-**Provide step-by-step instructions so someone else can run your code and reproduce your results. Depending on your setup, include:**
-
-* How to clone the repository
-* How to install dependencies
-* How to set up the environment
-* How to access the dataset(s)
-* How to run the notebook or scripts
+1. Clone or download the repository and open a terminal at its root.
+2. Install the packages with `python -m pip install -r requirements.txt`.
+3. Download and extract `Part_1.mat` through `Part_4.mat` into the repository's `data/` folder. [UCI dataset](https://archive.ics.uci.edu/dataset/340/cuff+less+blood+pressure+estimation)
+4. Run `jupyter notebook`, open `notebooks/final.ipynb`, and run the cells in order. Full training can take substantial CPU time.
 
 ---
 
 ## 🏗️ **Project Overview**
 
-**Describe:**
-
-- How this project is connected to the Break Through Tech AI Program
-- Your AI Studio host company and the project objective and scope
-- The real-world significance of the problem and the potential impact of your work
+Pulse2BP is an educational prototype built for the Microsoft challenge in Break Through Tech AI Studio. It shows how machine learning can use an optical pulse signal (PPG) to estimate blood pressure.
 
 ---
 
@@ -55,111 +43,64 @@
 
 ### Dataset
 
-We are using the **UCI Cuff-Less Blood Pressure Estimation dataset**. The dataset contains synchronized physiological signals that can be used to study cuffless blood pressure estimation.
-
-Each recording contains three signals:
-
-- **PPG (Photoplethysmography):** measures changes in blood volume
-- **ABP (Arterial Blood Pressure):** provides the blood pressure waveform and is used as the ground truth
-- **ECG (Electrocardiogram):** measures the electrical activity of the heart
-
-The signals are sampled at **125 Hz**, meaning there are 125 data points per second.
-
-The dataset is stored in large MATLAB `.mat` files using the MATLAB v7.3/HDF5 format. Because the files are large, the raw dataset is not stored directly in this GitHub repository.
+The UCI dataset contains synchronized fingertip PPG, arterial blood pressure (ABP), and ECG sampled at 125 Hz. The four raw files are in MATLAB format. [UCI dataset](https://archive.ics.uci.edu/dataset/340/cuff+less+blood+pressure+estimation)
 
 ### Data Exploration
 
-We first explored the structure of the MATLAB files using Python and `h5py`.
-
-Our exploration included:
-
-- Opening the MATLAB/HDF5 files
-- Finding the individual recordings stored inside each file
-- Checking the shape and length of the recordings
-- Confirming the PPG, ABP, and ECG signal columns
-- Plotting small sections of each signal
-- Checking how the three signals change over time
-
-The recordings are long continuous signals, so they cannot be directly used as individual training examples. They will need to be divided into smaller time windows.
+We checked recording lengths and plotted examples of the three signals. [Data exploration graphs](results/README.md)
 
 ### Data Preprocessing
 
-Our preprocessing pipeline is being developed to prepare the signals for machine learning.
-
-The main steps include:
-
-1. Load the PPG, ABP, and ECG signals.
-2. Split the long signals into smaller matching time windows.
-3. Check the PPG signal for missing, flat, or noisy data.
-4. Clean and normalize the PPG signal when needed.
-5. Use the ABP signal to calculate systolic blood pressure (SBP) and diastolic blood pressure (DBP).
-6. Extract useful features from each PPG window.
-7. Use the PPG features as model inputs and the SBP/DBP values as prediction targets.
-
-The PPG and ABP windows must represent the same time period so that the PPG features are matched with the correct blood pressure values.
+We split the recordings into windows, filter the PPG, and extract pulse features. The high and low points of the matching ABP waveform provide the SBP and DBP labels.
 
 ### Initial EDA Insights
 
-Our initial exploration showed that:
-
-- The dataset is made of long physiological waveforms rather than a normal row-and-column machine learning dataset.
-- PPG, ABP, and ECG signals are recorded together and can be compared over the same time period.
-- ABP contains repeating high and low points that can be used to obtain SBP and DBP.
-- The long recordings need to be divided into smaller windows before feature extraction and model training.
-- Signal quality is important because noisy or incorrect PPG sections could affect the model.
+Recording lengths vary, so we use fixed windows for training. Flat or noisy PPG windows can hide the pulse shape and are screened during preprocessing.
 
 ---
 
 ## 🧠 **Model Development**
 
-**You might consider describing the following (as applicable):**
+XGBoost is our final model. One regressor predicts SBP and another predicts DBP. Both use pulse measurements, waveform patterns, and earlier PPG windows from the same recording. We compare XGBoost with Extra Trees and a baseline that predicts the median BP from training.
 
-* Model(s) used (e.g., CNN with transfer learning, regression models)
-* Feature selection and Hyperparameter tuning strategies
-* Training setup (e.g., % of data for training/validation, evaluation metric, baseline performance)
-
+We keep each recording in one split and check for duplicate inputs across splits. We use validation data to choose settings, then report test results for all three approaches.
 
 ---
 
 ## 📈 **Results & Key Findings**
 
-**You might consider describing the following (as applicable):**
+All three approaches below used the same 12,523 test windows, each 30 seconds long. Mean absolute error (MAE) measures the average size of a prediction error.
 
-* Performance metrics (e.g., Accuracy, F1 score, RMSE)
-* How your model performed
-* Insights from evaluating model fairness
+| Model | SBP MAE | DBP MAE |
+| --- | ---: | ---: |
+| Training median | 18.29 mmHg | 8.59 mmHg |
+| Extra Trees | 12.49 mmHg | 6.62 mmHg |
+| XGBoost | **11.60 mmHg** | **6.04 mmHg** |
 
-**Potential visualizations to include:**
-
-* Confusion matrix, precision-recall curve, feature importance plot, prediction distribution, outputs from fairness or explainability tools
+Section 4 compares the models in a chart and table. Section 5 shows which pulse features XGBoost used most. [Final notebook](notebooks/final.ipynb) · [Results guide](results/README.md)
 
 ---
 
 ## 🚀 **Next Steps**
 
-**You might consider addressing the following (as applicable):**
-
-* What are some of the limitations of your model?
-* What would you do differently with more time/resources?
-* What additional datasets or techniques would you explore?
+The dataset identifies recordings. Patient IDs are unavailable. A dataset with patient IDs would let us check how well the model works for people it has never seen. Testing on another device would show how well the model transfers to a different PPG sensor.
 
 ---
 
 ## 📝 **License**
 
-Specify how your project can be used by others. Choose an appropriate license and link it here (e.g., MIT, Apache 2.0). Make sure your Challenge Advisor approves of the selected license type. 
-
-**Example:**
-This project is licensed under the MIT License.
+Pulse2BP is released under the [MIT License](LICENSE).
 
 ---
 
 ## 📄 **References** (Optional but encouraged)
 
-Cite relevant papers, articles, or resources that supported your project.
+- [UCI Cuff-Less Blood Pressure Estimation dataset](https://archive.ics.uci.edu/dataset/340/cuff+less+blood+pressure+estimation)
+- [Challenge project overview](docs/Challenge-Project-Overview.md)
+- [XGBoost paper](https://arxiv.org/abs/1603.02754)
 
 ---
 
 ## 🙏 **Acknowledgements** (Optional but encouraged)
 
-Thank your Challenge Advisor, host company representatives, TA, and others who supported your project.
+Thanks to the Microsoft challenge team and the Break Through Tech AI Studio coaches for supporting this project.

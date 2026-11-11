@@ -1,5 +1,13 @@
 # Notebook results
 
+The [final notebook](../notebooks/final.ipynb) reports **11.60 mmHg SBP MAE** and **6.04 mmHg DBP MAE** for XGBoost on 12,523 test windows.
+
+- **Section 3** trains XGBoost and Extra Trees and sets up the training-median baseline.
+- **Section 4** compares their SBP and DBP errors and shows a chart.
+- **Section 5** shows which pulse features XGBoost used most.
+
+The sections below show how we explored and prepared the data.
+
 ## [dataset_overview.ipynb](../notebooks/dataset_overview.ipynb)
 
 **Purpose:** Explore the data.
@@ -100,7 +108,7 @@
 - Skipped **0** for undefined measurements.
 - The strongest single relationship with SBP was the **rise-time/fall-time ratio** (**-0.164**).
 - The strongest single relationship with DBP was the **lowest PPG reading** (**-0.092**).
-- Both relationships were weak. We have not tested prediction accuracy.
+- Both relationships were weak. The final notebook evaluates prediction accuracy using several features together.
 - Saved labels and source IDs were checked against the cleaned dataset.
 
 ### Detected-pulse graph
