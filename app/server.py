@@ -23,6 +23,9 @@ WEB_FILES = {
     "/capture.js": ("capture.js", "text/javascript; charset=utf-8"),
     "/camera.js": ("camera.js", "text/javascript; charset=utf-8"),
     "/finger.js": ("finger.js", "text/javascript; charset=utf-8"),
+    "/face-camera.js": ("face-camera.js", "text/javascript; charset=utf-8"),
+    "/face-signal.js": ("face-signal.js", "text/javascript; charset=utf-8"),
+    "/pulse-chart.js": ("pulse-chart.js", "text/javascript; charset=utf-8"),
     "/style.css": ("style.css", "text/css; charset=utf-8"),
 }
 

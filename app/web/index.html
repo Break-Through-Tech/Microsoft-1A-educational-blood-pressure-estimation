@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,14 +11,31 @@
 <body>
   <main>
     <h1>Pulse2BP</h1>
-    <p>Rest your fingertip lightly over the rear camera and flash. Hold still for 30 seconds.</p>
-    <video id="camera" muted playsinline hidden></video>
-    <button id="start" type="button">Start capture</button>
+    <fieldset id="modes">
+      <legend>Capture mode</legend>
+      <label><input type="radio" name="mode" value="face" checked> Face</label>
+      <label><input type="radio" name="mode" value="finger"> Finger</label>
+    </fieldset>
+    <p id="face-instructions">Use your laptop webcam or selfie camera in steady room light. Face mode shows your pulse and heart rate.</p>
+    <p id="finger-instructions" hidden>Rest one fingertip lightly over the rear lens and flash for 30 seconds to get an experimental blood pressure estimate.</p>
+    <div class="actions">
+      <button id="start" type="button">Open camera</button>
+      <button id="cancel" type="button" hidden>Cancel</button>
+    </div>
+    <div id="preview" hidden>
+      <video id="camera" muted playsinline aria-label="Front camera preview"></video>
+      <span class="face-outline" aria-hidden="true"></span>
+      <span id="forehead" aria-hidden="true"></span>
+    </div>
     <progress id="progress" value="0" max="30" aria-label="Capture progress" hidden></progress>
     <p id="status" role="status"></p>
-    <output id="reading" aria-label="Estimated blood pressure" hidden></output>
+    <output id="reading" aria-live="off" hidden></output>
+    <figure id="pulse-chart" hidden>
+      <figcaption>Pulse waveform</figcaption>
+      <canvas width="640" height="144" role="img" aria-label="Recent pulse waveform"></canvas>
+    </figure>
     <footer>
-      <p>Your browser sends brightness samples and timestamps to the demo server. Camera video stays on your phone.</p>
+      <p id="capture-privacy">Face video and pulse data stay in your browser.</p>
       <p>Research demo. Camera estimates have not been validated for medical use.</p>
     </footer>
   </main>
