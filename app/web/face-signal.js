@@ -91,7 +91,9 @@ export function analyzePulse(frames) {
   const stable = Math.abs(first.hz - whole.hz) <= 0.16 &&
     Math.abs(second.hz - whole.hz) <= 0.16;
   const clear = whole.concentration >= 0.37 && Math.min(first.concentration, second.concentration) >= 0.30;
-  return { waveform, bpm: stable && clear ? Math.round(whole.hz * 60) : null };
+  if (!stable || !clear) return { waveform, bpm: null };
+  const quality = Math.min(whole.concentration, first.concentration, second.concentration);
+  return { waveform, bpm: Math.round(whole.hz * 60), quality };
 }
 
 function strongestFrequency(values) {
