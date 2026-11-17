@@ -6,8 +6,8 @@ Open the published link in Chrome or another current browser.
   Face a steady lamp or window and select **Open camera**. The preview tells you
   when lighting and framing are ready. Tap **Measure pulse**, then hold still
   for 30 seconds. The app checks the forehead and both cheeks and keeps the
-  clearest stretch of the scan for heart rate. It can collect for up to 45
-  seconds to find 30 clear seconds for the pressure model. Face video stays
+  clearest stretch of the scan for heart rate. It uses the selected face area
+  from that same scan for the pressure model. Face video stays
   on your device. **Estimate blood pressure** sends the cleaned waveform to
   the existing model and displays an experimental systolic / diastolic pair.
   If face tracking cannot load, line up your face yourself using the guide.

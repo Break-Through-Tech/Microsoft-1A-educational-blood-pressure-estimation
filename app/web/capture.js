@@ -139,9 +139,7 @@ async function start() {
       const { pulse, pressure } = await captureFace(video, track, signal, duration, run.faceSession, (time, frame) => {
         showProgress(time);
         drawFace(frame.regions, frame.colors);
-        const message = frame.issue ? setupMessages[frame.issue]
-          : time >= duration ? "Hold still for a few more seconds to get a clearer pulse."
-          : "Hold still and look at the camera.";
+        const message = frame.issue ? setupMessages[frame.issue] : "Hold still and look at the camera.";
         if (status.textContent !== message) status.textContent = message;
       }, showPulse);
       if (!pulse) {

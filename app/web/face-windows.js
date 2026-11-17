@@ -14,7 +14,7 @@ export function readPulseWindow(frames, end) {
     if (colors.length < window.length * 0.88) return null;
     const pulse = analyzePulse(colors);
     if (pulse.bpm === null) return null;
-    return { ...pulse, quality: pulse.quality * colors.length / window.length };
+    return { ...pulse, area, quality: pulse.quality * colors.length / window.length };
   }).filter(Boolean);
   return agreeOnPulse(candidates);
 }

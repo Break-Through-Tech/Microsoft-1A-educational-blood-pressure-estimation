@@ -22,6 +22,7 @@ export function agreeOnPulse(candidates) {
   const weightedRate = best.reduce((sum, candidate) => sum + candidate.bpm * candidate.quality, 0);
   return {
     waveform: clearest.waveform,
+    ...(clearest.area ? { area: clearest.area } : {}),
     bpm: Math.round(weightedRate / bestQuality),
     score: bestQuality / best.length + 0.18 * (best.length - 1),
   };

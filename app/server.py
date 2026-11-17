@@ -127,15 +127,13 @@ def camera_waveform(payload, helpers):
     return raw
 
 
-def face_waveform(payload, helpers):
+def face_waveform(payload):
     """Match the notebook's 125 Hz input using the cleaned 25 Hz face waveform."""
     samples = np.asarray(payload["samples"], dtype=float)
     if (samples.shape != (751,) or not np.isfinite(samples).all()
-            or np.any((samples <= 0) | (samples >= 1)) or np.std(samples) < 0.0005):
+            or np.any((samples < 0) | (samples > 1))):
         raise ValueError("Try another scan in steady light so we can see the shape of each beat.")
     raw = np.interp(np.arange(3750) / 125, np.arange(751) / 25, samples).astype(np.float32)
-    if not helpers["inband_power_ratio"](raw[None])[0] >= 0.6:
-        raise ValueError("Try another scan and hold still so the pulse shape is clearer.")
     return raw
 
 
@@ -201,8 +199,10 @@ class Handler(BaseHTTPRequestHandler):
             if not 0 < length <= 180_000:
                 raise ValueError("Invalid capture size.")
             payload = json.loads(self.rfile.read(length))
-            prepare = face_waveform if self.path == "/estimate-face" else camera_waveform
-            raw = prepare(payload, self.server.predictor.helpers)
+            if self.path == "/estimate-face":
+                raw = face_waveform(payload)
+            else:
+                raw = camera_waveform(payload, self.server.predictor.helpers)
             self.send_json(200, self.server.predictor.predict(raw))
         except (ValueError, KeyError, TypeError, TimeoutError) as error:
             self.send_json(400, {"error": str(error)})

@@ -1,7 +1,7 @@
 import { checkFrameTiming } from "./face-timing.js";
 
 
-export const SAMPLE_RATE = 25;
+const SAMPLE_RATE = 25;
 
 function resampleColors(frames) {
   const start = frames[0]?.time;
@@ -47,8 +47,16 @@ export function pulseWaveform(frames) {
 
 // Keep the pulse shape and restore a camera light level for the existing feature code.
 export function pressureWaveform(frames) {
-  const colors = resampleColors(frames);
-  if (!colors || colors.length < 751) return null;
+  // Fill missing frames on the model's fixed time grid using the selected face area.
+  let next = 1;
+  const colors = Array.from({ length: 751 }, (_, i) => {
+    const time = i / SAMPLE_RATE;
+    while (next < frames.length - 1 && frames[next].time < time) next++;
+    const left = frames[next - 1];
+    const right = frames[next];
+    const weight = Math.max(0, Math.min(1, (time - left.time) / (right.time - left.time)));
+    return left.rgb.map((value, channel) => value + weight * (right.rgb[channel] - value));
+  });
   const light = mean(colors.map(rgb => rgb[1])) / 255;
   const pulse = projectPulse(colors.slice(0, 751));
   // Remove slow drift. A three-point weighted filter reduces camera noise.
@@ -57,7 +65,7 @@ export function pressureWaveform(frames) {
   const waveform = centered.map((value, i) => light * (1 - (
     centered[Math.max(0, i - 1)] + 2 * value + centered[Math.min(i + 1, 750)]
   ) / 4));
-  return waveform.every(value => value > 0 && value < 1) ? waveform : null;
+  return waveform.map(value => Math.max(0, Math.min(1, value)));
 }
 
 function projectPulse(colors) {
