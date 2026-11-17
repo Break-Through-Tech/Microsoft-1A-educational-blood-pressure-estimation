@@ -65,9 +65,9 @@ function showReading(value, label) {
 }
 
 function showPulse(pulse) {
-  chart.hidden = pulse.waveform.length === 0;
+  chart.hidden = !pulse?.waveform.length;
   if (!chart.hidden) drawWaveform(canvas, pulse.waveform);
-  if (pulse.bpm === null) reading.hidden = true;
+  if (!pulse || pulse.bpm === null) reading.hidden = true;
   else showReading(`${pulse.bpm} bpm`, "Estimated heart rate");
 }
 
@@ -123,9 +123,14 @@ async function start() {
       await waitForFaceReady(video, track, signal, run.faceSession,
         (state, frame, measure) => setFaceSetup(run, state, frame, measure));
       signal.throwIfAborted();
-      status.textContent = "Hold still. Keep your forehead inside the box.";
-      const pulse = await captureFace(video, track, signal, duration, showProgress, showPulse);
-      if (pulse.bpm === null) {
+      status.textContent = "Hold still and look at the camera.";
+      const pulse = await captureFace(video, track, signal, duration, run.faceSession, (time, frame) => {
+        showProgress(time);
+        drawFace(frame.regions, frame.colors);
+        const message = frame.issue ? setupMessages[frame.issue] : "Hold still and look at the camera.";
+        if (status.textContent !== message) status.textContent = message;
+      }, showPulse);
+      if (!pulse) {
         clearResult();
         throw new Error("No steady pulse detected. Face a steady light and keep still, then try again.");
       }
