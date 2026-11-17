@@ -25,6 +25,7 @@ async function until(ready) {
 test("face capture stays local and finger capture calls the pressure model", async () => {
   const ids = [
     "camera", "preview", "sample-areas", "modes", "face-instructions", "finger-instructions",
+    "face-pressure", "estimate-face", "face-pressure-status", "face-pressure-reading",
     "start", "cancel", "progress", "status", "reading", "pulse-chart", "capture-privacy",
   ];
   const ui = Object.fromEntries(ids.map(id => [id, new Control()]));
@@ -114,6 +115,14 @@ test("face capture stays local and finger capture calls the pressure model", asy
   feedFrames(35, 586);
   await until(() => ui.status.textContent === "Estimated heart rate");
   assert.equal(closed, 1);
+  assert.equal(requests.length, 0);
+  assert.equal(ui["estimate-face"].hidden, false);
+  ui["estimate-face"].click();
+  await until(() => ui["face-pressure-reading"].textContent === "112 / 72 mmHg");
+  assert.equal(requests[0].path, "/estimate-face");
+  assert.equal(requests[0].samples.length, 751);
+  assert.match(ui.reading.textContent, /bpm$/);
+  requests.length = 0;
 
   selected = "finger";
   ui.modes.dispatchEvent(new Event("change"));

@@ -38,8 +38,14 @@
       <figcaption>Pulse waveform</figcaption>
       <canvas width="640" height="144" role="img" aria-label="Recent pulse waveform"></canvas>
     </figure>
+    <section id="face-pressure" hidden>
+      <p>Experimental blood pressure estimate. Requesting it sends only the cleaned pulse waveform to the demo server.</p>
+      <button id="estimate-face" type="button">Estimate blood pressure</button>
+      <p id="face-pressure-status" role="status"></p>
+      <output id="face-pressure-reading" aria-label="Experimental blood pressure estimate"></output>
+    </section>
     <footer>
-      <p id="capture-privacy">Face video and pulse data stay in your browser.</p>
+      <p id="capture-privacy">Face video stays on your device. Heart rate is calculated in your browser.</p>
       <p>Research demo. Camera estimates have not been validated for medical use.</p>
     </footer>
   </main>

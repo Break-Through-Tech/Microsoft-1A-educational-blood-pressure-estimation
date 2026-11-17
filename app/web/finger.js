@@ -36,8 +36,8 @@ export async function captureFinger(video, track, signal, duration, onStatus, on
   return { seconds, brightness };
 }
 
-export async function estimatePressure(payload, signal) {
-  const response = await fetch("/estimate", {
+export async function estimatePressure(payload, signal, path = "/estimate") {
+  const response = await fetch(path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

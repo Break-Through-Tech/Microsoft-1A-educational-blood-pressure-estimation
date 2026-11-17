@@ -90,7 +90,7 @@ def extract_inputs(raw, helpers):
     clean = filtfilt(helpers["FILTER_B"], helpers["FILTER_A"], raw).astype(np.float32)
     base = helpers["extract_features"](clean)
     if base is None:
-        raise ValueError("No clear pulse found. Hold your fingertip still and try again.")
+        raise ValueError("No clear pulse found. Hold still and try another scan.")
     names = helpers["FEATURES"]
     wave = helpers["waveform_features"](clean[None])[0]
     beat = helpers["beat_template"](clean)
@@ -124,6 +124,18 @@ def camera_waveform(payload, helpers):
     raw = np.interp(np.arange(3750) / 125, times, 1 - light).astype(np.float32)
     if helpers["inband_power_ratio"](raw[None])[0] < 0.6:
         raise ValueError("The pulse signal was noisy. Keep light contact and hold still.")
+    return raw
+
+
+def face_waveform(payload, helpers):
+    """Match the notebook's 125 Hz input using the cleaned 25 Hz face waveform."""
+    samples = np.asarray(payload["samples"], dtype=float)
+    if (samples.shape != (751,) or not np.isfinite(samples).all()
+            or np.any((samples <= 0) | (samples >= 1)) or np.std(samples) < 0.0005):
+        raise ValueError("Try another scan in steady light so we can see the shape of each beat.")
+    raw = np.interp(np.arange(3750) / 125, np.arange(751) / 25, samples).astype(np.float32)
+    if not helpers["inband_power_ratio"](raw[None])[0] >= 0.6:
+        raise ValueError("Try another scan and hold still so the pulse shape is clearer.")
     return raw
 
 
@@ -181,7 +193,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(404, {})
 
     def do_POST(self):
-        if self.path != "/estimate":
+        if self.path not in ("/estimate", "/estimate-face"):
             self.send_json(404, {})
             return
         try:
@@ -189,7 +201,8 @@ class Handler(BaseHTTPRequestHandler):
             if not 0 < length <= 180_000:
                 raise ValueError("Invalid capture size.")
             payload = json.loads(self.rfile.read(length))
-            raw = camera_waveform(payload, self.server.predictor.helpers)
+            prepare = face_waveform if self.path == "/estimate-face" else camera_waveform
+            raw = prepare(payload, self.server.predictor.helpers)
             self.send_json(200, self.server.predictor.predict(raw))
         except (ValueError, KeyError, TypeError, TimeoutError) as error:
             self.send_json(400, {"error": str(error)})

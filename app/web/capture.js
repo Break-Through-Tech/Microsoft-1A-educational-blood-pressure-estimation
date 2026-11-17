@@ -21,7 +21,13 @@ const reading = document.querySelector("#reading");
 const chart = document.querySelector("#pulse-chart");
 const canvas = chart.querySelector("canvas");
 const privacy = document.querySelector("#capture-privacy");
+const pressurePanel = document.querySelector("#face-pressure");
+const pressureButton = document.querySelector("#estimate-face");
+const pressureStatus = document.querySelector("#face-pressure-status");
+const pressureReading = document.querySelector("#face-pressure-reading");
 const duration = 30;
+let pressureSamples;
+let pressureRequest;
 let active;
 
 function faceSelected() {
@@ -29,6 +35,12 @@ function faceSelected() {
 }
 
 function clearResult() {
+  pressureRequest?.abort();
+  pressureRequest = undefined;
+  pressureSamples = undefined;
+  pressurePanel.hidden = true;
+  pressureStatus.textContent = "";
+  pressureReading.textContent = "";
   reading.hidden = true;
   reading.textContent = "";
   chart.hidden = true;
@@ -40,7 +52,7 @@ function showMode() {
   fingerInstructions.hidden = face;
   button.textContent = face ? "Open camera" : "Start finger capture";
   privacy.textContent = face
-    ? "Face video and pulse data stay in your browser."
+    ? "Face video stays on your device. Heart rate is calculated in your browser."
     : "Only brightness samples and timestamps go to the demo server. Camera video stays on your phone.";
 }
 
@@ -124,10 +136,12 @@ async function start() {
         (state, frame, measure) => setFaceSetup(run, state, frame, measure));
       signal.throwIfAborted();
       status.textContent = "Hold still and look at the camera.";
-      const pulse = await captureFace(video, track, signal, duration, run.faceSession, (time, frame) => {
+      const { pulse, pressure } = await captureFace(video, track, signal, duration, run.faceSession, (time, frame) => {
         showProgress(time);
         drawFace(frame.regions, frame.colors);
-        const message = frame.issue ? setupMessages[frame.issue] : "Hold still and look at the camera.";
+        const message = frame.issue ? setupMessages[frame.issue]
+          : time >= duration ? "Hold still for a few more seconds to get a clearer pulse."
+          : "Hold still and look at the camera.";
         if (status.textContent !== message) status.textContent = message;
       }, showPulse);
       if (!pulse) {
@@ -136,6 +150,11 @@ async function start() {
       }
       showPulse(pulse);
       status.textContent = "Estimated heart rate";
+      pressureSamples = pressure;
+      pressurePanel.hidden = false;
+      pressureButton.hidden = !pressure;
+      pressureButton.disabled = false;
+      if (!pressure) pressureStatus.textContent = "Try another scan in steady light for blood pressure.";
     } else {
       const payload = await captureFinger(video, track, signal, duration, message => {
         status.textContent = message;
@@ -194,6 +213,29 @@ button.addEventListener("click", () => {
     measure();
   } else if (!active) {
     void start();
+  }
+});
+pressureButton.addEventListener("click", async () => {
+  if (!pressureSamples || pressureRequest) return;
+  const request = new AbortController();
+  pressureRequest = request;
+  pressureButton.disabled = true;
+  pressureStatus.textContent = "Estimating blood pressure…";
+  try {
+    const { sbp, dbp } = await estimatePressure({ samples: pressureSamples }, request.signal, "/estimate-face");
+    if (pressureRequest !== request) return;
+    pressureReading.textContent = `${sbp} / ${dbp} mmHg`;
+    pressureStatus.textContent = "Experimental systolic / diastolic estimate";
+    pressureButton.hidden = true;
+  } catch {
+    if (pressureRequest === request) {
+      pressureStatus.textContent = "Try another scan in steady light for blood pressure.";
+    }
+  } finally {
+    if (pressureRequest === request) {
+      pressureRequest = undefined;
+      pressureButton.disabled = false;
+    }
   }
 });
 cancelButton.addEventListener("click", cancel);
