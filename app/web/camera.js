@@ -25,8 +25,8 @@ export function captureFrames(video, track, signal, duration, sample) {
       try {
         firstTime ??= metadata.mediaTime;
         const elapsed = metadata.mediaTime - firstTime;
-        sample(elapsed, now);
-        if (elapsed >= duration) finish();
+        const finished = sample(elapsed, now);
+        if (finished === true || elapsed >= duration) finish();
         else frame = video.requestVideoFrameCallback(readFrame);
       } catch (error) {
         finish(error);
