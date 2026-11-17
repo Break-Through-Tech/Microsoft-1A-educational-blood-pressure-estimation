@@ -3,13 +3,18 @@
 Open the published link in Chrome or another current browser.
 
 - **Face** is the default and works with a laptop webcam or phone selfie camera.
-  Sit facing a steady light. Open the camera, line up your forehead with the box,
-  and select **Measure pulse**. The browser shows a pulse waveform and heart rate
-  when the signal is steady. Face video and pulse samples stay in the browser.
+  Face a steady lamp or window and select **Open camera**. The preview tells you
+  when lighting and framing are ready. Tap **Measure pulse**, then hold still
+  for 30 seconds. The app checks the forehead and both cheeks and keeps the
+  clearest stretch of the scan. Face video and pulse samples stay in the browser.
+  If face tracking cannot load, line up your face yourself using the guide.
 - **Finger** requires a phone with a rear camera and flash that the browser can
   switch on. Cover both with one finger for 30 seconds. This mode sends brightness
   samples and timestamps to the demo server for an experimental XGBoost blood
   pressure estimate.
+
+Face tracking uses MediaPipe in the browser. The first visit downloads about
+10 MB of tracker files and the browser can cache them for repeat visits.
 
 Face mode extracts a pulse using the [POS method](https://doi.org/10.1109/TBME.2016.2609282).
 A face-based blood pressure estimate would need testing on face recordings paired
