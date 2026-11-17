@@ -43,3 +43,17 @@ export function faceRegions(face) {
   if (turn < 0.15) regions.rightCheek = { left: box.left + box.width * 0.69, top, width, height };
   return Object.fromEntries(Object.entries(regions).filter(([, region]) => insideFrame(region)));
 }
+
+export function positionIssue(face) {
+  if (!face) return "missing";
+  const { box } = face;
+  if (box.width < 0.18 || box.height < 0.23) return "small";
+  if (box.left < -0.03 || box.top < -0.03 ||
+      box.left + box.width > 1.03 || box.top + box.height > 1.03) return "edge";
+  return null;
+}
+
+export const manualFace = {
+  box: { left: 0.25, top: 0.12, width: 0.5, height: 0.76 },
+  eyes: [],
+};
