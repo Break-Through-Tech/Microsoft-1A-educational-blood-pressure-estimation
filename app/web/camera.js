@@ -21,11 +21,11 @@ export function captureFrames(video, track, signal, duration, sample) {
     signal.addEventListener("abort", cancel, { once: true });
     track.addEventListener("ended", cameraEnded, { once: true });
 
-    function readFrame(_, metadata) {
+    function readFrame(now, metadata) {
       try {
         firstTime ??= metadata.mediaTime;
         const elapsed = metadata.mediaTime - firstTime;
-        sample(elapsed);
+        sample(elapsed, now);
         if (elapsed >= duration) finish();
         else frame = video.requestVideoFrameCallback(readFrame);
       } catch (error) {
