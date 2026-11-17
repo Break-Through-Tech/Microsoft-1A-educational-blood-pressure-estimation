@@ -1,3 +1,5 @@
+import { captureFrames } from "/camera.js";
+
 const video = document.querySelector("#camera");
 const button = document.querySelector("#start");
 const progress = document.querySelector("#progress");
@@ -14,52 +16,23 @@ function stopCamera(run) {
   if (video.srcObject === run.stream) video.srcObject = null;
 }
 
-function capture(track, signal) {
-  return new Promise((resolve, reject) => {
-    const seconds = [];
-    const brightness = [];
-    let frame;
-    let firstTime;
-    const timeout = setTimeout(() => finish(new Error("The camera stopped delivering frames. Try again.")), 38000);
-
-    function finish(error) {
-      clearTimeout(timeout);
-      if (frame !== undefined) video.cancelVideoFrameCallback(frame);
-      signal.removeEventListener("abort", cancel);
-      track.removeEventListener("ended", cameraEnded);
-      if (error) reject(error);
-      else resolve({ seconds, brightness });
-    }
-
-    const cancel = () => finish(signal.reason);
-    const cameraEnded = () => finish(new Error("The camera closed. Try again."));
-    signal.addEventListener("abort", cancel, { once: true });
-    track.addEventListener("ended", cameraEnded, { once: true });
-
-    function sample(_, metadata) {
-      try {
-        firstTime ??= metadata.mediaTime;
-        const elapsed = metadata.mediaTime - firstTime;
-        const width = video.videoWidth;
-        const height = video.videoHeight;
-        pixels.drawImage(video, width / 4, height / 4, width / 2, height / 2, 0, 0, 24, 24);
-        const data = pixels.getImageData(0, 0, 24, 24).data;
-        let red = 0;
-        for (let i = 0; i < data.length; i += 4) red += data[i];
-        seconds.push(elapsed);
-        brightness.push(red / (24 * 24 * 255));
-        progress.value = elapsed;
-        const message = `Hold still · ${Math.min(duration, Math.floor(elapsed))} / 30 seconds`;
-        if (status.textContent !== message) status.textContent = message;
-        if (elapsed >= duration) finish();
-        else frame = video.requestVideoFrameCallback(sample);
-      } catch (error) {
-        finish(error);
-      }
-    }
-
-    frame = video.requestVideoFrameCallback(sample);
+async function capture(track, signal) {
+  const seconds = [];
+  const brightness = [];
+  await captureFrames(video, track, signal, duration, elapsed => {
+    const width = video.videoWidth;
+    const height = video.videoHeight;
+    pixels.drawImage(video, width / 4, height / 4, width / 2, height / 2, 0, 0, 24, 24);
+    const data = pixels.getImageData(0, 0, 24, 24).data;
+    let red = 0;
+    for (let i = 0; i < data.length; i += 4) red += data[i];
+    seconds.push(elapsed);
+    brightness.push(red / (24 * 24 * 255));
+    progress.value = elapsed;
+    const message = `Hold still · ${Math.min(duration, Math.floor(elapsed))} / 30 seconds`;
+    if (status.textContent !== message) status.textContent = message;
   });
+  return { seconds, brightness };
 }
 
 async function start() {

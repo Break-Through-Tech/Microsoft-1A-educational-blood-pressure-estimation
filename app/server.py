@@ -21,6 +21,7 @@ MODEL_DIR = APP / "models"
 WEB_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
     "/capture.js": ("capture.js", "text/javascript; charset=utf-8"),
+    "/camera.js": ("camera.js", "text/javascript; charset=utf-8"),
     "/style.css": ("style.css", "text/css; charset=utf-8"),
 }
 
