@@ -26,6 +26,13 @@ WEB_FILES = {
     "/face-camera.js": ("face-camera.js", "text/javascript; charset=utf-8"),
     "/face-signal.js": ("face-signal.js", "text/javascript; charset=utf-8"),
     "/pulse-chart.js": ("pulse-chart.js", "text/javascript; charset=utf-8"),
+    "/vision/vision_bundle.mjs": ("vision/vision_bundle.mjs", "text/javascript; charset=utf-8"),
+    "/vision/wasm/vision_wasm_internal.js": ("vision/wasm/vision_wasm_internal.js", "text/javascript; charset=utf-8"),
+    "/vision/wasm/vision_wasm_nosimd_internal.js": ("vision/wasm/vision_wasm_nosimd_internal.js", "text/javascript; charset=utf-8"),
+    "/vision/wasm/vision_wasm_internal.wasm": ("vision/wasm/vision_wasm_internal.wasm", "application/wasm"),
+    "/vision/wasm/vision_wasm_nosimd_internal.wasm": ("vision/wasm/vision_wasm_nosimd_internal.wasm", "application/wasm"),
+    "/vision/blaze_face_short_range.tflite": ("vision/blaze_face_short_range.tflite", "application/octet-stream"),
+    "/vision/LICENSE": ("vision/LICENSE", "text/plain; charset=utf-8"),
     "/style.css": ("style.css", "text/css; charset=utf-8"),
 }
 
