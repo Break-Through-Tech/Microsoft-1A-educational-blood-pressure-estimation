@@ -24,7 +24,7 @@ async function until(ready) {
 
 test("face capture stays local and finger capture calls the pressure model", async () => {
   const ids = [
-    "camera", "preview", "forehead", "modes", "face-instructions", "finger-instructions",
+    "camera", "preview", "sample-areas", "modes", "face-instructions", "finger-instructions",
     "start", "cancel", "progress", "status", "reading", "pulse-chart", "capture-privacy",
   ];
   const ui = Object.fromEntries(ids.map(id => [id, new Control()]));
@@ -42,12 +42,14 @@ test("face capture stays local and finger capture calls the pressure model", asy
         clearRect() {}, beginPath() {}, moveTo() {}, lineTo() {}, stroke() {}, drawImage() {},
         getImageData() {
           const pulse = Math.sin(2 * Math.PI * 1.25 * frameTime);
-          const colors = selected === "face" ? [152, 113 + 4 * pulse, 87] : [158 - 6 * pulse, 0, 0];
+          let colors = [158 - 6 * pulse, 0, 0];
+          if (selected === "face") colors = frameTime < 2 ? [9, 7, 5] : [152, 113 + 4 * pulse, 87];
           return { data: new Uint8ClampedArray([...colors, 255]) };
         },
       };
     },
   };
+  ui["sample-areas"].children = [];
   ui.modes.querySelector = () => ({ value: selected });
   ui["pulse-chart"].querySelector = () => canvas;
   Object.assign(ui.camera, {
@@ -94,15 +96,22 @@ test("face capture stays local and finger capture calls the pressure model", asy
   await import("../web/capture.js");
   assert.equal(ui.start.textContent, "Open camera");
   ui.start.click();
-  await until(() => ui.start.textContent === "Measure pulse");
-  assert.equal(ui.preview.hidden, false);
-  ui.start.click();
   await until(() => frameCallback);
-  feedFrames(15);
+  assert.equal(ui.preview.hidden, false);
+  feedFrames(1);
+  assert.equal(ui.start.disabled, true);
+  assert.match(ui.status.textContent, /Face a steady lamp or window/);
+  feedFrames(4.2, 31);
+  assert.equal(ui.start.disabled, false);
+  assert.equal(ui.start.textContent, "Measure pulse");
+  ui.start.click();
+  feedFrames(4.3, 127);
+  await until(() => frameCallback);
+  feedFrames(19.5, 130);
   assert.equal(ui["pulse-chart"].hidden, false);
   assert.match(ui.reading.textContent, /^7[3-7] bpm$/);
   assert.equal(requests.length, 0);
-  feedFrames(30, 451);
+  feedFrames(35, 586);
   await until(() => ui.status.textContent === "Estimated heart rate");
   assert.equal(closed, 1);
 
@@ -125,7 +134,7 @@ test("face capture stays local and finger capture calls the pressure model", asy
   function feedFrames(seconds, firstFrame = 0) {
     for (let i = firstFrame; i <= seconds * 30; i++) {
       frameTime = i / 30;
-      frameCallback?.(0, { mediaTime: frameTime });
+      frameCallback?.(frameTime * 1000, { mediaTime: frameTime });
     }
   }
 });
