@@ -1,0 +1,10 @@
+run = ["sh", "-c", "python -m pip install -r app/requirements.txt && PULSE2BP_HOST=0.0.0.0 PORT=8765 python app/server.py"]
+
+[[ports]]
+localPort = 8765
+externalPort = 80
+
+[deployment]
+deploymentTarget = "cloudrun"
+build = ["sh", "-c", "python -m pip install -r app/requirements.txt"]
+run = ["sh", "-c", "PULSE2BP_HOST=0.0.0.0 PORT=8765 python app/server.py"]
