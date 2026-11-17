@@ -1,5 +1,5 @@
 
-import { captureFrames } from "/camera.js";
+import { captureFrames } from "./camera.js";
 
 export const fingerCamera = { facingMode: { exact: "environment" } };
 
