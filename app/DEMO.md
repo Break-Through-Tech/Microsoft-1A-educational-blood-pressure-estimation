@@ -56,3 +56,12 @@ branch. The Free service can take about a minute to start after sitting idle.
 The deployment branch includes the two trained model files. To regenerate
 them, install the repo's `requirements.txt`, put the four MATLAB files in
 `data/`, and run `python app/export_models.py` from the repository root.
+
+
+## Check the camera on real devices
+
+Try a phone selfie camera and a laptop webcam. For each device, repeat the
+30-second scan in normal light, dim light, and with a bright light behind you.
+Try a scan with a small head movement near the end. Record how often the app
+gives a reading and compare accepted heart rates with a fingertip pulse
+oximeter. Check both measures across different lighting and skin tones.
