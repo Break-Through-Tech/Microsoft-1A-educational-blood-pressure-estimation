@@ -81,3 +81,44 @@ function projectPulse(colors) {
 function movingAverage(values, radius) {
   return values.map((_, i) => mean(values.slice(Math.max(0, i - radius), i + radius + 1)));
 }
+
+const MIN_HEART_RATE_SAMPLES = SAMPLE_RATE * 12;
+
+export function analyzePulse(frames) {
+  const waveform = pulseWaveform(frames);
+  if (!waveform) return { waveform: [], bpm: null };
+  if (waveform.length < MIN_HEART_RATE_SAMPLES) return { waveform, bpm: null };
+
+  const whole = strongestFrequency(waveform);
+  const middle = Math.floor(waveform.length / 2);
+  const first = strongestFrequency(waveform.slice(0, middle));
+  const second = strongestFrequency(waveform.slice(middle));
+  const stable = Math.abs(first.hz - whole.hz) <= 0.16 &&
+    Math.abs(second.hz - whole.hz) <= 0.16;
+  const clear = whole.concentration >= 0.37 && Math.min(first.concentration, second.concentration) >= 0.30;
+  return { waveform, bpm: stable && clear ? Math.round(whole.hz * 60) : null };
+}
+
+function strongestFrequency(values) {
+  // A Hann window reduces the effect of cutting the pulse at a partial beat.
+  const center = mean(values);
+  const windowed = values.map((value, i) =>
+    (value - center) * (0.5 - 0.5 * Math.cos(2 * Math.PI * i / (values.length - 1))));
+  const spectrum = [];
+  for (let bin = 0; bin <= 80; bin++) {
+    const hz = (40 + bin * 1.75) / 60;
+    let inPhase = 0;
+    let outOfPhase = 0;
+    for (let i = 0; i < windowed.length; i++) {
+      const phase = 2 * Math.PI * hz * i / SAMPLE_RATE;
+      inPhase += windowed[i] * Math.cos(phase);
+      outOfPhase += windowed[i] * Math.sin(phase);
+    }
+    spectrum.push({ hz, power: inPhase ** 2 + outOfPhase ** 2 });
+  }
+  const strongest = spectrum.reduce((best, bin) => bin.power > best.power ? bin : best);
+  const totalPower = spectrum.reduce((sum, bin) => sum + bin.power, 0);
+  const peakPower = spectrum.reduce((sum, bin) =>
+    Math.abs(bin.hz - strongest.hz) <= 0.16 ? sum + bin.power : sum, 0);
+  return { hz: strongest.hz, concentration: totalPower > 0 ? peakPower / totalPower : 0 };
+}
