@@ -1,5 +1,7 @@
 numpy
 pandas
 scipy
+scikit-learn
 threadpoolctl
-xgboost
+xgboost-cpu==3.4.1; sys_platform == "linux" and platform_machine == "x86_64"
+xgboost==3.4.1; sys_platform != "linux" or platform_machine != "x86_64"
