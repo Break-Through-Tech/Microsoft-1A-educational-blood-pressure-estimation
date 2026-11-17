@@ -1,9 +1,19 @@
 # Pulse2BP web demo
 
-Open the published link in Chrome on an Android phone. Tap **Start capture**,
-allow camera access, and rest your fingertip over the rear camera and flash
-for 30 seconds. The page sends brightness samples to XGBoost and shows an
-experimental blood pressure estimate.
+Open the published link in Chrome or another current browser.
+
+- **Face** is the default and works with a laptop webcam or phone selfie camera.
+  Sit facing a steady light. Open the camera, line up your forehead with the box,
+  and select **Measure pulse**. The browser shows a pulse waveform and heart rate
+  when the signal is steady. Face video and pulse samples stay in the browser.
+- **Finger** requires a phone with a rear camera and flash that the browser can
+  switch on. Cover both with one finger for 30 seconds. This mode sends brightness
+  samples and timestamps to the demo server for an experimental XGBoost blood
+  pressure estimate.
+
+Face mode extracts a pulse using the [POS method](https://doi.org/10.1109/TBME.2016.2609282).
+A face-based blood pressure estimate would need testing on face recordings paired
+with reference cuff readings.
 
 ## Run on your computer
 
@@ -14,8 +24,13 @@ python -m pip install -r app/requirements.txt
 python app/server.py
 ```
 
-Open `http://localhost:8765` to preview the page. Use the published HTTPS link
+Open `http://localhost:8765` to try the webcam. Use the published HTTPS link
 to test the rear camera and flash on your phone.
+
+## Check the signal code
+
+With Node.js 22 or later, run `node --test app/tests/*.test.mjs` from the
+repository root.
 
 ## Publish on Render
 
@@ -30,8 +45,8 @@ root directory blank so the app can load the notebook's feature code.
 | `PYTHON_VERSION` | `3.12.12` |
 | Health check path | `/health` |
 
-Open the HTTPS link in Android Chrome to try a capture. A Free service can
-take about a minute to start after sitting idle.
+Use **Manual Deploy → Deploy latest commit** after pushing to the deployment
+branch. The Free service can take about a minute to start after sitting idle.
 
 The deployment branch includes the two trained model files. To regenerate
 them, install the repo's `requirements.txt`, put the four MATLAB files in
