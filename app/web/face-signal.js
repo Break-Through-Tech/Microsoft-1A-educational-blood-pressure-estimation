@@ -2,8 +2,6 @@ import { checkFrameTiming } from "./face-timing.js";
 
 
 const SAMPLE_RATE = 25;
-const MIN_SAMPLE_RATE = 14;
-const MAX_FRAME_GAP = 0.4;
 
 function resampleColors(frames) {
   const start = frames[0]?.time;
