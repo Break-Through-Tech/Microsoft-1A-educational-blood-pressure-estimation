@@ -1,3 +1,5 @@
+import { checkFrameTiming } from "./face-timing.js";
+
 
 const SAMPLE_RATE = 25;
 const MIN_SAMPLE_RATE = 14;
@@ -7,14 +9,7 @@ function resampleColors(frames) {
   const start = frames[0]?.time;
   const end = frames.at(-1)?.time;
   const duration = end - start;
-  if (!Number.isFinite(duration) || duration < 4 || (frames.length - 1) / duration < MIN_SAMPLE_RATE) {
-    return null;
-  }
-
-  for (let i = 1; i < frames.length; i++) {
-    const gap = frames[i].time - frames[i - 1].time;
-    if (!(gap > 0 && gap <= MAX_FRAME_GAP)) return null;
-  }
+  if (!(duration >= 4) || !checkFrameTiming(frames)) return null;
 
   const colors = [];
   let frame = 1;
