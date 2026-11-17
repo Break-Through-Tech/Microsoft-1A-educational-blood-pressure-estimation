@@ -18,3 +18,17 @@ export function readPulseWindow(frames, end) {
   }).filter(Boolean);
   return agreeOnPulse(candidates);
 }
+
+export function createPulsePicker() {
+  let next = WINDOW_SECONDS;
+  let best = null;
+  return {
+    update(frames, time, final = false) {
+      if (time < next && !final) return undefined;
+      next = time + 2.5;
+      const current = readPulseWindow(frames, time);
+      if (current && (!best || current.score > best.score)) best = current;
+      return final ? best : current;
+    },
+  };
+}
