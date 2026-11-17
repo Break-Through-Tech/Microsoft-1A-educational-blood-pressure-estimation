@@ -93,7 +93,7 @@ button:disabled { opacity: .7; cursor: default; }
 
 #camera { display: block; width: 100%; transform: scaleX(-1); }
 
-.face-outline, #forehead {
+.face-outline, #sample-areas span {
   position: absolute;
   pointer-events: none;
   border: 2px solid #f4fff9;
@@ -105,10 +105,12 @@ button:disabled { opacity: .7; cursor: default; }
   border-radius: 50%;
 }
 
-#forehead {
-  border-color: #a8ffcc;
+#sample-areas span {
+  border-color: #ffcc80;
   border-radius: .24rem;
 }
+
+#sample-areas span.lit { border-color: #a8ffcc; }
 
 #status:empty { display: none; }
 

@@ -25,7 +25,11 @@
     <div id="preview" hidden>
       <video id="camera" muted playsinline aria-label="Front camera preview"></video>
       <span class="face-outline" aria-hidden="true"></span>
-      <span id="forehead" aria-hidden="true"></span>
+      <div id="sample-areas" aria-hidden="true">
+        <span data-area="forehead" hidden></span>
+        <span data-area="leftCheek" hidden></span>
+        <span data-area="rightCheek" hidden></span>
+      </div>
     </div>
     <progress id="progress" value="0" max="30" aria-label="Capture progress" hidden></progress>
     <p id="status" role="status"></p>

@@ -1,11 +1,15 @@
 
-import { captureFace, faceCamera, forehead } from "./face-camera.js";
+import { captureFace, faceCamera } from "./face-camera.js";
+import { setupMessages } from "./face-messages.js";
+import { createFaceOverlay } from "./face-overlay.js";
+import { waitForFaceReady } from "./face-preview.js";
+import { prepareFaceSession } from "./face-session.js";
 import { captureFinger, estimatePressure, fingerCamera } from "./finger.js";
 import { drawWaveform } from "./pulse-chart.js";
 
 const video = document.querySelector("#camera");
 const preview = document.querySelector("#preview");
-const guide = document.querySelector("#forehead");
+const drawFace = createFaceOverlay(document.querySelector("#sample-areas"));
 const modes = document.querySelector("#modes");
 const faceInstructions = document.querySelector("#face-instructions");
 const fingerInstructions = document.querySelector("#finger-instructions");
@@ -19,10 +23,6 @@ const canvas = chart.querySelector("canvas");
 const privacy = document.querySelector("#capture-privacy");
 const duration = 30;
 let active;
-
-for (const [property, fraction] of Object.entries(forehead)) {
-  guide.style[property] = `${fraction * 100}%`;
-}
 
 function faceSelected() {
   return modes.querySelector(":checked").value === "face";
@@ -76,28 +76,16 @@ function showProgress(elapsed) {
   progress.value = elapsed;
 }
 
-function waitForAlignment(track, signal) {
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => finish(new Error("Camera preview timed out. Open it again to retry.")), 60000);
-    function finish(error) {
-      clearTimeout(timeout);
-      track.removeEventListener("ended", ended);
-      signal.removeEventListener("abort", aborted);
-      if (error) reject(error);
-      else resolve();
-    }
-    const ended = () => finish(new Error("The camera closed. Try again."));
-    const aborted = () => finish(signal.reason);
-    if (signal.aborted) return aborted();
-    if (track.readyState === "ended") return ended();
-    track.addEventListener("ended", ended, { once: true });
-    signal.addEventListener("abort", aborted, { once: true });
-
-    active.measure = () => finish();
-    status.textContent = "Line up your forehead with the small box, then tap Measure pulse.";
-    button.textContent = "Measure pulse";
-    button.disabled = false;
-  });
+function setFaceSetup(run, state, frame, measure) {
+  drawFace(frame.regions, frame.colors);
+  const ready = state === "ready";
+  button.textContent = "Measure pulse";
+  button.disabled = !ready;
+  run.measure = ready ? measure : undefined;
+  const message = ready && run.faceSession.manual
+    ? "Align your face with the guide, then tap Measure pulse."
+    : setupMessages[state];
+  if (status.textContent !== message) status.textContent = message;
 }
 
 async function start() {
@@ -128,7 +116,12 @@ async function start() {
     signal.throwIfAborted();
 
     if (run.face) {
-      await waitForAlignment(track, signal);
+      drawFace({}, {});
+      status.textContent = "Preparing face tracking…";
+      run.faceSession = await prepareFaceSession(signal);
+      signal.throwIfAborted();
+      await waitForFaceReady(video, track, signal, run.faceSession,
+        (state, frame, measure) => setFaceSetup(run, state, frame, measure));
       signal.throwIfAborted();
       status.textContent = "Hold still. Keep your forehead inside the box.";
       const pulse = await captureFace(video, track, signal, duration, showProgress, showPulse);
@@ -155,6 +148,7 @@ async function start() {
     }
   } finally {
     stopCamera(run);
+    run.faceSession?.close();
     if (active === run) {
       active = undefined;
       resetControls();
