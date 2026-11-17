@@ -1,5 +1,5 @@
 
-import { readLighting } from "./face-light.js";
+import { lightingIssue, readLighting } from "./face-light.js";
 import { faceRegions } from "./face-regions.js";
 
 export function createFaceSampler() {
@@ -17,7 +17,7 @@ export function createFaceSampler() {
       const data = pixels.getImageData(0, 0, size, size).data;
       return { name, rgb: averageColors(data), light: readLighting(data) };
     });
-    return { samples, regions };
+    return { ...assessRegions(samples), regions };
   };
 }
 
@@ -27,4 +27,16 @@ function averageColors(data) {
     for (let channel = 0; channel < rgb.length; channel++) rgb[channel] += data[i + channel];
   }
   return rgb.map(sum => sum / (data.length / 4));
+}
+
+export function assessRegions(samples) {
+  const checked = samples.map(sample => ({ ...sample, issue: lightingIssue(sample.light) }));
+  const usable = checked.filter(sample => !sample.issue);
+  if (!usable.length) {
+    const onlyGlare = checked.length && checked.every(sample => sample.issue === "glare");
+    return { issue: onlyGlare ? "glare" : "dark", colors: {} };
+  }
+  const light = Math.max(...usable.map(sample => sample.light.middle));
+  const colors = Object.fromEntries(usable.map(sample => [sample.name, sample.rgb]));
+  return { issue: null, light, colors };
 }
