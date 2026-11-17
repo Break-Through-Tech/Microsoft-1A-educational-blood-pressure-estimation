@@ -1,4 +1,4 @@
-"""Run the notebook's XGBoost models for the Android demo."""
+"""Serve the Pulse2BP browser demo and its XGBoost predictions."""
 
 import ast
 import json
@@ -18,6 +18,11 @@ from xgboost import XGBRegressor
 
 APP = Path(__file__).resolve().parent
 MODEL_DIR = APP / "models"
+WEB_FILES = {
+    "/": ("index.html", "text/html; charset=utf-8"),
+    "/capture.js": ("capture.js", "text/javascript; charset=utf-8"),
+    "/style.css": ("style.css", "text/css; charset=utf-8"),
+}
 
 
 def load_feature_helpers():
@@ -134,8 +139,17 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
-        if self.path == "/health":
+        path = self.path.partition("?")[0]
+        if path == "/health":
             self.send_json(200, {"status": "ready"})
+        elif path in WEB_FILES:
+            name, content_type = WEB_FILES[path]
+            body = (APP / "web" / name).read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
         else:
             self.send_json(404, {})
 
@@ -157,7 +171,8 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     predictor = Predictor()
     host = os.environ.get("PULSE2BP_HOST", "127.0.0.1")
-    server = ThreadingHTTPServer((host, 8765), Handler)
+    port = int(os.environ.get("PORT", "8765"))
+    server = ThreadingHTTPServer((host, port), Handler)
     server.predictor = predictor
-    print(f"Pulse2BP listening on {host}:8765", flush=True)
+    print(f"Pulse2BP listening on {host}:{port}", flush=True)
     server.serve_forever()

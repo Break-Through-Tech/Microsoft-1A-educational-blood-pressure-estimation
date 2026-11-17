@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pulse2BP</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/capture.js"></script>
+</head>
+<body>
+  <main>
+    <h1>Pulse2BP</h1>
+    <p>Rest your fingertip lightly over the rear camera and flash. Hold still for 30 seconds.</p>
+    <video id="camera" muted playsinline hidden></video>
+    <button id="start" type="button">Start capture</button>
+    <progress id="progress" value="0" max="30" aria-label="Capture progress" hidden></progress>
+    <p id="status" role="status"></p>
+    <output id="reading" aria-label="Estimated blood pressure" hidden></output>
+    <footer>Research demo. Camera estimates have not been validated for medical use.</footer>
+  </main>
+</body>
+</html>
