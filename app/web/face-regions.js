@@ -30,3 +30,16 @@ export function foreheadRegion(face) {
     height,
   };
 }
+
+export function faceRegions(face) {
+  const { box, nose } = face;
+  const width = box.width * 0.18;
+  const height = box.height * 0.14;
+  const top = box.top + box.height * 0.58;
+  const center = box.left + box.width * 0.5;
+  const turn = nose ? (nose.x - center) / box.width : 0;
+  const regions = { forehead: foreheadRegion(face) };
+  if (turn > -0.15) regions.leftCheek = { left: box.left + box.width * 0.13, top, width, height };
+  if (turn < 0.15) regions.rightCheek = { left: box.left + box.width * 0.69, top, width, height };
+  return Object.fromEntries(Object.entries(regions).filter(([, region]) => insideFrame(region)));
+}
