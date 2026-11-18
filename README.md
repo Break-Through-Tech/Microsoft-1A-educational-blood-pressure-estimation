@@ -12,7 +12,9 @@
 | Sofial Alvazzi      | @sofiaal1       | Data exploration, visualization, overall project coordination |
 | Sushmita Musunuri   | @sushmitam112   | Data collection, exploratory data analysis (EDA), dataset documentation |
 | Vanesa Aguay Guerra | @vaguay | Signal segmentation, SBP/DBP label extraction, preprocessing support |
-| Zaina Qadan         | @zaina778       | Data preprocessing, feature engineering, data validation |
+| Zaina Qadan         | @zaina778       | Data preprocessing, feature engineering, data validation | 
+| Omar Soltan         | @omsoltan       | 
+
 
 ---
 
