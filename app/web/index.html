@@ -1,0 +1,53 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pulse2BP</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/capture.js"></script>
+</head>
+<body>
+  <main>
+    <h1>Pulse2BP</h1>
+    <fieldset id="modes">
+      <legend>Capture mode</legend>
+      <label><input type="radio" name="mode" value="face" checked> Face</label>
+      <label><input type="radio" name="mode" value="finger"> Finger</label>
+    </fieldset>
+    <p id="face-instructions">Use your laptop webcam or selfie camera in steady room light. Face mode shows your pulse and heart rate.</p>
+    <p id="finger-instructions" hidden>Rest one fingertip lightly over the rear lens and flash for 30 seconds to get an experimental blood pressure estimate.</p>
+    <div class="actions">
+      <button id="start" type="button">Open camera</button>
+      <button id="cancel" type="button" hidden>Cancel</button>
+    </div>
+    <div id="preview" hidden>
+      <video id="camera" muted playsinline aria-label="Front camera preview"></video>
+      <span class="face-outline" aria-hidden="true"></span>
+      <div id="sample-areas" aria-hidden="true">
+        <span data-area="forehead" hidden></span>
+        <span data-area="leftCheek" hidden></span>
+        <span data-area="rightCheek" hidden></span>
+      </div>
+    </div>
+    <progress id="progress" value="0" max="30" aria-label="Capture progress" hidden></progress>
+    <p id="status" role="status"></p>
+    <output id="reading" aria-live="off" hidden></output>
+    <figure id="pulse-chart" hidden>
+      <figcaption>Pulse waveform</figcaption>
+      <canvas width="640" height="144" role="img" aria-label="Recent pulse waveform"></canvas>
+    </figure>
+    <section id="face-pressure" hidden>
+      <p>Experimental blood pressure estimate. Requesting it sends only the cleaned pulse waveform to the demo server.</p>
+      <button id="estimate-face" type="button">Estimate blood pressure</button>
+      <p id="face-pressure-status" role="status"></p>
+      <output id="face-pressure-reading" aria-label="Experimental blood pressure estimate"></output>
+    </section>
+    <footer>
+      <p id="capture-privacy">Face video stays on your device. Heart rate is calculated in your browser.</p>
+      <p>Research demo. Camera estimates have not been validated for medical use.</p>
+    </footer>
+  </main>
+</body>
+</html>

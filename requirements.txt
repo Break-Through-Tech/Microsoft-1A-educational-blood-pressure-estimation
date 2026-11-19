@@ -4,3 +4,5 @@ scipy
 h5py
 matplotlib
 scikit-learn
+xgboost
+jupyter
