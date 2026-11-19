@@ -20,6 +20,8 @@ APP = Path(__file__).resolve().parent
 MODEL_DIR = APP / "models"
 WEB_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
+    "/facephys.js": ("facephys.js", "text/javascript; charset=utf-8"),
+    "/local-bp.js": ("local-bp.js", "text/javascript; charset=utf-8"),
     "/capture.js": ("capture.js", "text/javascript; charset=utf-8"),
     "/camera.js": ("camera.js", "text/javascript; charset=utf-8"),
     "/finger.js": ("finger.js", "text/javascript; charset=utf-8"),
@@ -48,6 +50,18 @@ WEB_FILES = {
     "/face-overlay.js": ("face-overlay.js", "text/javascript; charset=utf-8"),
     "/style.css": ("style.css", "text/css; charset=utf-8"),
 }
+
+
+# Serve the browser model assets from fixed directories.
+for directory in ("facephys", "local-bp"):
+    media = {".js": "text/javascript; charset=utf-8", ".py": "text/plain; charset=utf-8",
+             ".gz": "application/gzip", ".tflite": "application/octet-stream",
+             "": "text/plain; charset=utf-8"}
+    for asset in (APP / "web" / directory).rglob("*"):
+        if asset.is_file() and asset.suffix in media:
+            relative = asset.relative_to(APP / "web").as_posix()
+            WEB_FILES["/" + relative] = (relative, media[asset.suffix])
+
 
 
 def load_feature_helpers():

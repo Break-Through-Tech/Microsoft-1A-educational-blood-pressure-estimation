@@ -5,6 +5,7 @@ import { createFaceOverlay } from "./face-overlay.js";
 import { waitForFaceReady } from "./face-preview.js";
 import { prepareFaceSession } from "./face-session.js";
 import { captureFinger, estimatePressure, fingerCamera } from "./finger.js";
+import { estimateFacePressure } from "./local-bp.js";
 import { drawWaveform } from "./pulse-chart.js";
 
 const video = document.querySelector("#camera");
@@ -52,7 +53,7 @@ function showMode() {
   fingerInstructions.hidden = face;
   button.textContent = face ? "Open camera" : "Start finger capture";
   privacy.textContent = face
-    ? "Face video stays on your device. Heart rate is calculated in your browser."
+    ? "Face video and pulse data stay on your device. FacePhys and BP run in your browser."
     : "Only brightness samples and timestamps go to the demo server. Camera video stays on your phone.";
 }
 
@@ -220,7 +221,7 @@ pressureButton.addEventListener("click", async () => {
   pressureButton.disabled = true;
   pressureStatus.textContent = "Estimating blood pressure…";
   try {
-    const { sbp, dbp } = await estimatePressure({ samples: pressureSamples }, request.signal, "/estimate-face");
+    const { sbp, dbp } = await estimateFacePressure(pressureSamples, request.signal);
     if (pressureRequest !== request) return;
     pressureReading.textContent = `${sbp} / ${dbp} mmHg`;
     pressureStatus.textContent = "Experimental systolic / diastolic estimate";

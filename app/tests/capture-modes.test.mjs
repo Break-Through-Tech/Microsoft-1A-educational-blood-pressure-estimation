@@ -1,6 +1,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
+import { gzipSync } from "node:zlib";
 import { setTimeout as delay } from "node:timers/promises";
 
 class Control extends EventTarget {
@@ -22,7 +23,7 @@ async function until(ready) {
   assert.fail("The capture did not reach the expected state");
 }
 
-test("face capture stays local and finger capture calls the pressure model", async () => {
+test("FacePhys and face BP stay local while finger capture calls the server", async () => {
   const ids = [
     "camera", "preview", "sample-areas", "modes", "face-instructions", "finger-instructions",
     "face-pressure", "estimate-face", "face-pressure-status", "face-pressure-reading",
@@ -89,7 +90,28 @@ test("face capture stays local and finger capture calls the pressure model", asy
       },
     },
   });
-  globalThis.fetch = async (path, { body }) => {
+  globalThis.Worker = class {
+    constructor(path) { this.path = path; }
+    postMessage(data) {
+      queueMicrotask(() => {
+        if (this.closed) return;
+        if (this.path === "/local-bp/worker.js") {
+          this.onmessage({ data: { result: { sbp: 112, dbp: 72 } } });
+        } else if (data.type === "init") {
+          this.onmessage({ data: { type: "initDone" } });
+        } else if (data.type === "run") {
+          const value = Math.sin(2 * Math.PI * 1.25 * data.payload.timestamp);
+          this.onmessage({ data: { type: "result", payload: { value } } });
+        }
+      });
+    }
+    terminate() { this.closed = true; }
+  };
+  globalThis.fetch = async (path, options = {}) => {
+    if (path.startsWith("/facephys/")) {
+      return new Response(path.endsWith("state.gz") ? gzipSync("{}") : new Uint8Array([0]));
+    }
+    const { body } = options;
     requests.push({ path, ...JSON.parse(body) });
     return { ok: true, json: async () => ({ sbp: 112, dbp: 72 }) };
   };
@@ -99,28 +121,27 @@ test("face capture stays local and finger capture calls the pressure model", asy
   ui.start.click();
   await until(() => frameCallback);
   assert.equal(ui.preview.hidden, false);
-  feedFrames(1);
+  await feedFrames(1);
   assert.equal(ui.start.disabled, true);
   assert.match(ui.status.textContent, /Face a steady lamp or window/);
-  feedFrames(4.2, 31);
+  await feedFrames(4.2, 31);
   assert.equal(ui.start.disabled, false);
   assert.equal(ui.start.textContent, "Measure pulse");
   ui.start.click();
-  feedFrames(4.3, 127);
+  await feedFrames(4.3, 127);
   await until(() => frameCallback);
-  feedFrames(19.5, 130);
+  await feedFrames(24, 130);
   assert.equal(ui["pulse-chart"].hidden, false);
   assert.match(ui.reading.textContent, /^7[3-7] bpm$/);
   assert.equal(requests.length, 0);
-  feedFrames(35, 586);
+  await feedFrames(39, 721);
   await until(() => ui.status.textContent === "Estimated heart rate");
   assert.equal(closed, 1);
   assert.equal(requests.length, 0);
   assert.equal(ui["estimate-face"].hidden, false);
   ui["estimate-face"].click();
   await until(() => ui["face-pressure-reading"].textContent === "112 / 72 mmHg");
-  assert.equal(requests[0].path, "/estimate-face");
-  assert.equal(requests[0].samples.length, 751);
+  assert.equal(requests.length, 0);
   assert.match(ui.reading.textContent, /bpm$/);
   requests.length = 0;
 
@@ -130,7 +151,7 @@ test("face capture stays local and finger capture calls the pressure model", asy
   assert.equal(ui["pulse-chart"].hidden, true);
   ui.start.click();
   await until(() => frameCallback);
-  feedFrames(30);
+  await feedFrames(30);
   await until(() => ui.status.textContent === "Estimated blood pressure");
   assert.equal(ui.reading.textContent, "112 / 72 mmHg");
   assert.deepEqual(cameraRequests, [{ ideal: "user" }, { exact: "environment" }]);
@@ -140,10 +161,11 @@ test("face capture stays local and finger capture calls the pressure model", asy
   assert.equal(requests[0].brightness.length, 901);
   assert.equal(closed, 2);
 
-  function feedFrames(seconds, firstFrame = 0) {
+  async function feedFrames(seconds, firstFrame = 0) {
     for (let i = firstFrame; i <= seconds * 30; i++) {
       frameTime = i / 30;
       frameCallback?.(frameTime * 1000, { mediaTime: frameTime });
+      for (let turn = 0; turn < 6; turn++) await Promise.resolve();
     }
   }
 });

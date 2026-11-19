@@ -16,7 +16,7 @@
       <label><input type="radio" name="mode" value="face" checked> Face</label>
       <label><input type="radio" name="mode" value="finger"> Finger</label>
     </fieldset>
-    <p id="face-instructions">Use your laptop webcam or selfie camera in steady room light. Face mode shows your pulse and heart rate.</p>
+    <p id="face-instructions">Use your laptop webcam or selfie camera in steady room light. FacePhys extracts your pulse on this device. Selecting Open camera gives permission to process your face locally for this scan.</p>
     <p id="finger-instructions" hidden>Rest one fingertip lightly over the rear lens and flash for 30 seconds to get an experimental blood pressure estimate.</p>
     <div class="actions">
       <button id="start" type="button">Open camera</button>
@@ -39,13 +39,13 @@
       <canvas width="640" height="144" role="img" aria-label="Recent pulse waveform"></canvas>
     </figure>
     <section id="face-pressure" hidden>
-      <p>Experimental blood pressure estimate. Requesting it sends only the cleaned pulse waveform to the demo server.</p>
+      <p>Experimental blood pressure estimate, calculated on your device. The first estimate downloads the BP model and supporting files and may take a minute.</p>
       <button id="estimate-face" type="button">Estimate blood pressure</button>
       <p id="face-pressure-status" role="status"></p>
       <output id="face-pressure-reading" aria-label="Experimental blood pressure estimate"></output>
     </section>
     <footer>
-      <p id="capture-privacy">Face video stays on your device. Heart rate is calculated in your browser.</p>
+      <p id="capture-privacy">Face video stays on your device. FacePhys and Face BP run in your browser.</p>
       <p>Research demo. Camera estimates have not been validated for medical use.</p>
     </footer>
   </main>

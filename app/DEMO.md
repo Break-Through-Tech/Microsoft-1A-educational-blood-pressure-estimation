@@ -5,11 +5,11 @@ Open the published link in Chrome or another current browser.
 - **Face** is the default and works with a laptop webcam or phone selfie camera.
   Face a steady lamp or window and select **Open camera**. The preview tells you
   when lighting and framing are ready. Tap **Measure pulse**, then hold still
-  for 30 seconds. The app checks the forehead and both cheeks and keeps the
-  clearest stretch of the scan for heart rate. It uses the selected face area
-  from that same scan for the pressure model. Face video stays
-  on your device. **Estimate blood pressure** sends the cleaned waveform to
-  the existing model and displays an experimental systolic / diastolic pair.
+  for 30 seconds. FacePhys processes a cropped face video locally after a short startup.
+  **Estimate blood pressure** runs the existing XGBoost trees and notebook
+  features locally in your browser. Face video and pulse data stay on your device.
+  The first estimate downloads Python, scientific packages and the BP trees,
+  so it may take a minute. Repeat estimates can use browser download caches.
   If face tracking cannot load, line up your face yourself using the guide.
 - **Finger** requires a phone with a rear camera and flash that the browser can
   switch on. Cover both with one finger for 30 seconds. This mode sends brightness
@@ -19,7 +19,14 @@ Open the published link in Chrome or another current browser.
 Face tracking uses MediaPipe in the browser. The first visit downloads about
 10 MB of tracker files and the browser can cache them for repeat visits.
 
-Face mode extracts a pulse using the [POS method](https://doi.org/10.1109/TBME.2016.2609282).
+Face mode uses [FacePhys](https://github.com/KegangWangCCNU/FacePhys-Demo).
+Its license requires local processing and consent. Selecting **Open camera**
+gives permission for this scan. Inference libraries load from jsDelivr.
+FacePhys returns a relative pulse waveform. We center it and scale its
+5th-to-95th percentile range to 0.1 at a level of 0.5 before the existing
+feature pipeline. This scale is an experimental adapter, not a calibration.
+Export browser BP files again with `python app/export_browser.py` if the
+notebook or trained models change.
 A face-based blood pressure estimate would need testing on face recordings paired
 with reference cuff readings.
 
