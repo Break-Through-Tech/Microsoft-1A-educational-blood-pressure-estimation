@@ -37,7 +37,7 @@ export function createFaceSession(detector) {
     manual: !tracker,
     read(video, now) {
       const tracked = tracker?.update(video, now) ?? { face: manualFace, issue: null };
-      const frame = sample(video, tracked);
+      const frame = { ...sample(video, tracked), box: tracked.issue === "missing" || tracked.issue === "several" ? null : tracked.face?.box };
       if (!frame.issue && exposureChanging(now / 1000, frame.light)) {
         return { ...frame, issue: "waiting", colors: {} };
       }

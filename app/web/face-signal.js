@@ -101,7 +101,10 @@ function movingAverage(values, radius) {
 const MIN_HEART_RATE_SAMPLES = SAMPLE_RATE * 12;
 
 export function analyzePulse(frames) {
-  const waveform = pulseWaveform(frames);
+  return analyzeWaveform(pulseWaveform(frames));
+}
+
+export function analyzeWaveform(waveform) {
   if (!waveform) return { waveform: [], bpm: null };
   if (waveform.length < MIN_HEART_RATE_SAMPLES) return { waveform, bpm: null };
 
